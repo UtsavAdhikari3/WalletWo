@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Sign In</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --red: #f44;
+        --green: #3ddc84;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* NAV */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 3rem;
+        height: 68px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+      }
+      .logo span {
+        color: var(--lime);
+      }
+
+      /* LAYOUT */
+      .page {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        flex: 1;
+      }
+
+      /* LEFT */
+      .left {
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        padding: 4rem 3.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .left-glow {
+        position: absolute;
+        top: -60px;
+        left: -60px;
+        width: 350px;
+        height: 350px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(198, 241, 53, 0.05) 0%,
+          transparent 65%
+        );
+        pointer-events: none;
+      }
+      .left-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(198, 241, 53, 0.25);
+        border-radius: 100px;
+        padding: 6px 14px;
+        font-size: 0.78rem;
+        color: var(--lime);
+        margin-bottom: 2rem;
+        width: fit-content;
+        position: relative;
+      }
+      .left-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.5rem;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      .left-title .accent {
+        color: var(--lime);
+      }
+      .left-desc {
+        font-size: 0.925rem;
+        color: var(--muted);
+        line-height: 1.75;
+        max-width: 340px;
+        margin-bottom: 2.5rem;
+        position: relative;
+      }
+
+      /* MINI DASHBOARD PREVIEW */
+      .dash-preview {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 14px;
+        padding: 1.25rem;
+        position: relative;
+      }
+      .dp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .dp-title {
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .dp-badge {
+        font-size: 0.7rem;
+        color: var(--lime);
+        background: rgba(198, 241, 53, 0.1);
+        border-radius: 100px;
+        padding: 3px 10px;
+      }
+      .dp-balance {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.2rem;
+        letter-spacing: 0.04em;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+      }
+      .dp-sub {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      .dp-bars {
+        display: flex;
+        gap: 6px;
+        align-items: flex-end;
+        height: 40px;
+      }
+      .dp-bar {
+        flex: 1;
+        border-radius: 4px 4px 0 0;
+        background: var(--faint);
+      }
+      .dp-bar.active {
+        background: var(--lime);
+      }
+      .dp-txns {
+        margin-top: 1rem;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .dp-txn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+      }
+      .dp-txn-name {
+        color: rgba(240, 242, 247, 0.7);
+      }
+      .dp-txn-amt {
+        font-weight: 600;
+      }
+      .pos {
+        color: var(--green);
+      }
+      .neg {
+        color: var(--red);
+      }
+
+      /* RIGHT */
+      .right {
+        padding: 3.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+      }
+      .form-wrap {
+        width: 100%;
+        max-width: 380px;
+      }
+
+      .form-heading {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.4rem;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.4rem;
+      }
+      .form-sub {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+      .form-sub a {
+        color: var(--lime);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .form-sub a:hover {
+        text-decoration: underline;
+      }
+
+      .field {
+        margin-bottom: 1.15rem;
+      }
+      .field-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .field label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .forgot {
+        font-size: 0.78rem;
+        color: var(--muted);
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        background: none;
+        border: none;
+        font-family: "Outfit", sans-serif;
+      }
+      .forgot:hover {
+        color: var(--lime);
+      }
+
+      .input-wrap {
+        position: relative;
+      }
+      .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        pointer-events: none;
+      }
+      input {
+        width: 100%;
+        padding: 12px 14px 12px 40px;
+        background: var(--bg2);
+        color: var(--text);
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        appearance: none;
+      }
+      input:focus {
+        border-color: var(--lime);
+        box-shadow: 0 0 0 3px rgba(198, 241, 53, 0.08);
+      }
+      input::placeholder {
+        color: var(--faint);
+      }
+
+      .remember-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0.75rem 0 1.25rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .remember-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        padding: 0;
+        cursor: pointer;
+        accent-color: var(--lime);
+      }
+      .remember-row label {
+        cursor: pointer;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--lime);
+        color: #080c14;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition: all 0.15s;
+        letter-spacing: 0.01em;
+      }
+      .submit-btn:hover {
+        background: var(--lime-dark);
+        transform: translateY(-1px);
+      }
+      .submit-btn:active {
+        transform: scale(0.98);
+      }
+
+      .error-box {
+        background: rgba(255, 68, 68, 0.08);
+        border: 1px solid rgba(255, 68, 68, 0.25);
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        color: var(--red);
+        margin-bottom: 1.25rem;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .success-box {
+        background: rgba(61, 220, 132, 0.08);
+        border: 1px solid rgba(61, 220, 132, 0.25);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 0.875rem;
+        color: var(--green);
+      }
+      .success-box strong {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 4px;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 1.5rem 0;
+        font-size: 0.78rem;
+        color: var(--faint);
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .signup-prompt {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 1.5rem;
+      }
+      .signup-prompt a {
+        color: var(--lime);
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .signup-prompt a:hover {
+        text-decoration: underline;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.45s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.08s;
+      }
+      .fu2 {
+        animation-delay: 0.16s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      class Login extends Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            username: "",
+            password: "",
+            remember: false,
+            error: "",
+            success: false,
+          };
+        }
+
+        handleSubmit(e) {
+          e.preventDefault();
+          const { username, password } = this.state;
+          if (!username.trim()) {
+            this.setState({ error: "Please enter your username." });
+            return;
+          }
+          if (!password) {
+            this.setState({ error: "Please enter your password." });
+            return;
+          }
+          this.setState({ success: true, error: "" });
+        }
+
+        render() {
+          const { username, password, remember, error, success } = this.state;
+          const set = (f) => (e) =>
+            this.setState({ [f]: e.target.value, error: "" });
+
+          return (
+            <>
+              <nav>
+                <div
+                  className="logo"
+                  onClick={() => (window.location.href = "../index.html")}
+                >
+                  Wallet<span>Wo</span>
+                </div>
+                <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
+                  No account?{" "}
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--lime)",
+                      fontFamily: "Outfit",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      (window.location.href = "../Register/register.html")
+                    }
+                  >
+                    Sign up free
+                  </button>
+                </span>
+              </nav>
+
+              <div className="page">
+                {/* LEFT */}
+                <div className="left">
+                  <div className="left-glow" />
+                  <div className="left-tag">👋 Welcome back</div>
+                  <h2 className="left-title">
+                    SIGN
+                    <br />
+                    <span className="accent">BACK</span>
+                    <br />
+                    IN
+                  </h2>
+                  <p className="left-desc">
+                    Access your wallet, review transactions, and manage your
+                    money — securely, from anywhere.
+                  </p>
+
+                  <div className="dash-preview">
+                    <div className="dp-header">
+                      <div className="dp-title">My Wallet</div>
+                      <div className="dp-badge">● Live</div>
+                    </div>
+                    <div className="dp-balance">$8,247.50</div>
+                    <div className="dp-sub">Available balance</div>
+                    <div className="dp-bars">
+                      {[30, 55, 40, 70, 45, 85, 60].map((h, i) => (
+                        <div
+                          key={i}
+                          className={`dp-bar${i === 5 ? " active" : ""}`}
+                          style={{ height: `${h}%` }}
+                        />
+                      ))}
+                    </div>
+                    <div className="dp-txns">
+                      {[
+                        ["Coffee shop", "-$4.50", "neg"],
+                        ["Salary deposit", "+$3,200", "pos"],
+                        ["Electric bill", "-$89.00", "neg"],
+                      ].map(([n, a, c]) => (
+                        <div className="dp-txn" key={n}>
+                          <span className="dp-txn-name">{n}</span>
+                          <span className={`dp-txn-amt ${c}`}>{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT */}
+                <div className="right">
+                  <div className="form-wrap fu">
+                    <h1 className="form-heading fu">Welcome back</h1>
+                    <p className="form-sub fu fu1">
+                      New to WalletWo?{" "}
+                      <a
+                        onClick={() => (window.location.href = "register.html")}
+                      >
+                        Create a free account
+                      </a>
+                    </p>
+
+                    {success && (
+                      <div className="success-box">
+                        <strong>✅ Signed in!</strong>
+                        Redirecting you to your dashboard…
+                      </div>
+                    )}
+                    {error && <div className="error-box">⚠ {error}</div>}
+
+                    {!success && (
+                      <form onSubmit={(e) => this.handleSubmit(e)}>
+                        <div className="field fu fu1">
+                          <label>Username</label>
+                          <div className="input-wrap">
+                            <span className="input-icon">@</span>
+                            <input
+                              type="text"
+                              placeholder="yourhandle"
+                              value={username}
+                              onChange={set("username")}
+                              autoComplete="username"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="field fu fu2">
+                          <div className="field-top">
+                            <label>Password</label>
+                            <button type="button" className="forgot">
+                              Forgot password?
+                            </button>
+                          </div>
+                          <div className="input-wrap">
+                            <span className="input-icon">🔑</span>
+                            <input
+                              type="password"
+                              placeholder="Your password"
+                              value={password}
+                              onChange={set("password")}
+                              autoComplete="current-password"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="remember-row">
+                          <input
+                            type="checkbox"
+                            id="rem"
+                            checked={remember}
+                            onChange={(e) =>
+                              this.setState({ remember: e.target.checked })
+                            }
+                          />
+                          <label htmlFor="rem">Keep me signed in</label>
+                        </div>
+
+                        <button type="submit" className="submit-btn">
+                          Sign in to wallet →
+                        </button>
+
+                        <div className="divider">or</div>
+
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: 10,
+                          }}
+                        >
+                          {[
+                            ["🍎", "Apple"],
+                            ["🔵", "Google"],
+                          ].map(([ic, lbl]) => (
+                            <button
+                              key={lbl}
+                              type="button"
+                              style={{
+                                background: "var(--bg2)",
+                                border: "1px solid var(--border2)",
+                                borderRadius: 10,
+                                color: "var(--muted)",
+                                fontFamily: "Outfit",
+                                fontSize: "0.85rem",
+                                fontWeight: 500,
+                                padding: "11px",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 8,
+                                transition: "all 0.15s",
+                              }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.borderColor =
+                                  "var(--border2)")
+                              }
+                            >
+                              {ic} {lbl}
+                            </button>
+                          ))}
+                        </div>
+
+                        <p className="signup-prompt">
+                          Don't have an account?{" "}
+                          <a
+                            onClick={() =>
+                              (window.location.href = "register.html")
+                            }
+                          >
+                            Sign up free →
+                          </a>
+                        </p>
+                      </form>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<Login />);
+    </script>
+  </body>
+</html>

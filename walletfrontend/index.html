@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Your Digital Wallet</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --blue: #3d7fff;
+      }
+      html,
+      body {
+        height: 100%;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* NAV */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 3rem;
+        height: 68px;
+        background: rgba(8, 12, 20, 0.8);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+      }
+      .logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.05em;
+        color: var(--text);
+      }
+      .logo span {
+        color: var(--lime);
+      }
+      .nav-btns {
+        display: flex;
+        gap: 10px;
+      }
+      .btn-ghost {
+        background: none;
+        border: 1px solid var(--border2);
+        color: var(--muted);
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 9px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-ghost:hover {
+        border-color: var(--lime);
+        color: var(--lime);
+      }
+      .btn-lime {
+        background: var(--lime);
+        color: #080c14;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 9px 22px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-lime:hover {
+        background: var(--lime-dark);
+        transform: translateY(-1px);
+      }
+
+      /* HERO */
+      .hero {
+        min-height: 100vh;
+        padding-top: 68px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-glow {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 700px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse,
+          rgba(198, 241, 53, 0.07) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(
+          ellipse 80% 60% at 50% 40%,
+          black 0%,
+          transparent 80%
+        );
+        pointer-events: none;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(198, 241, 53, 0.08);
+        border: 1px solid rgba(198, 241, 53, 0.25);
+        border-radius: 100px;
+        padding: 7px 16px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--lime);
+        margin-bottom: 2rem;
+        position: relative;
+      }
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--lime);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .hero-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(4.5rem, 10vw, 8.5rem);
+        line-height: 0.92;
+        letter-spacing: 0.02em;
+        color: var(--text);
+        margin-bottom: 1.5rem;
+        position: relative;
+      }
+      .hero-title .accent {
+        color: var(--lime);
+      }
+      .hero-title .outline {
+        -webkit-text-stroke: 1.5px rgba(240, 242, 247, 0.25);
+        color: transparent;
+      }
+      .hero-sub {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 520px;
+        line-height: 1.75;
+        margin-bottom: 2.5rem;
+        position: relative;
+      }
+      .hero-cta {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        margin-bottom: 4rem;
+        position: relative;
+      }
+      .btn-lime-lg {
+        background: var(--lime);
+        color: #080c14;
+        font-family: "Outfit", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 15px 36px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.01em;
+      }
+      .btn-lime-lg:hover {
+        background: var(--lime-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(198, 241, 53, 0.2);
+      }
+      .btn-outline-lg {
+        background: none;
+        color: var(--text);
+        font-family: "Outfit", sans-serif;
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 15px 36px;
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-outline-lg:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      /* STATS BAR */
+      .stats-bar {
+        display: flex;
+        gap: 0;
+        position: relative;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        max-width: 700px;
+        width: 10%;
+      }
+      .stat-item {
+        flex: 1;
+        padding: 1.25rem 1.5rem;
+        text-align: center;
+        border-right: 1px solid var(--border);
+      }
+      .stat-item:last-child {
+        border-right: none;
+      }
+      .stat-num {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        color: var(--lime);
+        letter-spacing: 0.04em;
+      }
+      .stat-lbl {
+        font-size: 1rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* CARDS VISUAL */
+      .visual-section {
+        padding: 5rem 2rem 6rem;
+        display: flex;
+        justify-content: center;
+        background: var(--bg);
+      }
+      .card-scene {
+        position: relative;
+        width: 360px;
+        height: 260px;
+      }
+      .w-card {
+        position: absolute;
+        width: 320px;
+        height: 190px;
+        border-radius: 18px;
+        padding: 1.5rem;
+      }
+      .wc-1 {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        top: 50px;
+        left: 40px;
+        transform: rotate(-8deg);
+      }
+      .wc-2 {
+        background: linear-gradient(135deg, #1a2640 0%, #0e1a30 100%);
+        border: 1px solid rgba(61, 127, 255, 0.3);
+        top: 25px;
+        left: 20px;
+        transform: rotate(-3deg);
+      }
+      .wc-front {
+        background: linear-gradient(135deg, #1c2e1a 0%, #0f2010 100%);
+        border: 1px solid rgba(198, 241, 53, 0.3);
+        top: 0;
+        left: 0;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(198, 241, 53, 0.15);
+      }
+      .chip {
+        width: 32px;
+        height: 24px;
+        border-radius: 5px;
+        background: linear-gradient(135deg, #d4a843, #f0c860);
+        margin-bottom: 1.25rem;
+      }
+      .cn {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: rgba(198, 241, 53, 0.6);
+        letter-spacing: 0.18em;
+        margin-bottom: 1rem;
+      }
+      .cf {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .cf-name {
+        font-size: 0.7rem;
+        color: rgba(198, 241, 53, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .cf-name b {
+        display: block;
+        color: var(--lime);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .cf-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        color: rgba(198, 241, 53, 0.4);
+      }
+
+      /* FEATURES */
+      .features {
+        padding: 5rem 3rem 6rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .sec-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--lime);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-bottom: 0.75rem;
+      }
+      .sec-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.5rem;
+        letter-spacing: 0.03em;
+        color: var(--text);
+        margin-bottom: 3rem;
+        line-height: 1;
+      }
+      .feat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+      }
+      .feat-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.75rem;
+        transition: border-color 0.2s, transform 0.2s;
+        cursor: default;
+      }
+      .feat-card:hover {
+        border-color: var(--border2);
+        transform: translateY(-3px);
+      }
+      .feat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .feat-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+      .feat-desc {
+        font-size: 0.825rem;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      /* CTA STRIP */
+      .cta-strip {
+        margin: 0 3rem 5rem;
+        padding: 3.5rem;
+        background: var(--bg2);
+        border: 1px solid rgba(198, 241, 53, 0.2);
+        border-radius: 20px;
+        text-align: center;
+      }
+      .cta-strip h2 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.75rem;
+      }
+      .cta-strip p {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+      }
+
+      /* FOOTER */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--faint);
+      }
+      .foot-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.2rem;
+        color: var(--muted);
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(28px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.6s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.1s;
+      }
+      .fu2 {
+        animation-delay: 0.2s;
+      }
+      .fu3 {
+        animation-delay: 0.3s;
+      }
+      .fu4 {
+        animation-delay: 0.45s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      class Landing extends Component {
+        render() {
+          return (
+            <>
+              <nav>
+                <div className="logo">
+                  Wallet<span>Wo</span>
+                </div>
+                <div className="nav-btns">
+                  <button
+                    className="btn-ghost"
+                    onClick={() =>
+                      (window.location.href = "./Login/login.html")
+                    }
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    className="btn-lime"
+                    onClick={() =>
+                      (window.location.href = "./Register/register.html")
+                    }
+                  >
+                    Get Started
+                  </button>
+                </div>
+              </nav>
+
+              <section className="hero">
+                <div className="hero-grid" />
+                <div className="hero-glow" />
+                <h1 className="hero-title fu fu1">
+                  SPEND
+                  <br />
+                  <span className="accent">SMART</span>
+                  <span className="outline"> LIVE</span>
+                  <br />
+                  BIGGER
+                </h1>
+                <p className="hero-sub fu fu2">
+                  WalletWo gives you a blazing-fast digital wallet. Send money,
+                  track spending, and pay anyone — instantly.
+                </p>
+                <div className="hero-cta fu fu3">
+                  <button
+                    className="btn-lime-lg"
+                    onClick={() => (window.location.href = "register.html")}
+                  >
+                    Open free wallet
+                  </button>
+                  <button
+                    className="btn-outline-lg"
+                    onClick={() =>
+                      (window.location.href = "./Login/login.html")
+                    }
+                  >
+                    Sign in
+                  </button>
+                </div>
+                <div className="stats-bar fu fu4">
+                  {[["WalletWo", "A Personal Project"]].map(([n, l]) => (
+                    <div className="stat-item" key={l}>
+                      <div className="stat-num">{n}</div>
+                      <div className="stat-lbl">{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="visual-section">
+                <div className="card-scene">
+                  <div className="w-card wc-1" />
+                  <div className="w-card wc-2" />
+                  <div className="w-card wc-front">
+                    <div className="chip" />
+                    <div className="cn">4827 •••• •••• 9314</div>
+                    <div className="cf">
+                      <div className="cf-name">
+                        Card holder<b>Jordan Reeves</b>
+                      </div>
+                      <div className="cf-logo">WW</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <div className="cta-strip">
+                <h2>READY TO GO?</h2>
+                <p>
+                  Create your free WalletWo account in under 60 seconds. No
+                  credit card required.
+                </p>
+                <button
+                  className="btn-lime-lg"
+                  onClick={() =>
+                    (window.location.href = "./Register/register.html")
+                  }
+                >
+                  Create my wallet →
+                </button>
+              </div>
+
+              <footer>
+                <div className="foot-logo">WalletWo</div>
+                <div>© 2025 WalletWo Inc. All rights reserved.</div>
+                <div style={{ display: "flex", gap: "1.5rem" }}>
+                  <span>Privacy</span>
+                  <span>Terms</span>
+                  <span>Help</span>
+                </div>
+              </footer>
+            </>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<Landing />);
+    </script>
+  </body>
+</html>
