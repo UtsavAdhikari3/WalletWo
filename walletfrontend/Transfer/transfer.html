@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Send Money</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --lime-bg: rgba(198, 241, 53, 0.08);
+        --green: #3ddc84;
+        --green-bg: rgba(61, 220, 132, 0.08);
+        --red: #ff5252;
+        --red-bg: rgba(255, 82, 82, 0.08);
+        --gold: #f0c050;
+        --gold-bg: rgba(240, 192, 80, 0.08);
+        --blue: #3d7fff;
+        --blue-bg: rgba(61, 127, 255, 0.1);
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem 1.25rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+      }
+      .sidebar-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.7rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2.5rem;
+        padding-left: 0.5rem;
+        cursor: pointer;
+      }
+      .sidebar-logo span {
+        color: var(--lime);
+      }
+      .sidebar-section {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--faint);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding-left: 0.5rem;
+        margin-bottom: 0.6rem;
+        margin-top: 1.5rem;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: all 0.15s;
+        margin-bottom: 2px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: "Outfit", sans-serif;
+      }
+      .nav-item:hover {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .nav-item.active {
+        background: var(--blue-bg);
+        color: var(--blue);
+      }
+      .ni-icon {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+      .sidebar-bottom {
+        margin-top: auto;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+      }
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--lime-bg);
+        border: 1px solid rgba(198, 241, 53, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: var(--lime);
+        flex-shrink: 0;
+      }
+      .user-info {
+        min-width: 0;
+      }
+      .user-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .user-email {
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* MAIN */
+      .main {
+        margin-left: 240px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 68px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2.5rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(8, 12, 20, 0.8);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .topbar-left h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.04em;
+      }
+      .topbar-left p {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .content {
+        padding: 2.5rem;
+        flex: 1;
+        max-width: 960px;
+      }
+
+      /* LAYOUT */
+      .send-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      /* CARD */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.75rem;
+      }
+      .card-heading {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.35rem;
+      }
+      .card-sub {
+        font-size: 0.825rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        line-height: 1.55;
+      }
+
+      /* STEPS */
+      .steps {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin-bottom: 2rem;
+      }
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+      .step-num {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .step.done .step-num {
+        background: var(--green);
+        color: #080c14;
+      }
+      .step.active .step-num {
+        background: var(--blue);
+        color: #fff;
+      }
+      .step.idle .step-num {
+        background: var(--bg3);
+        color: var(--faint);
+        border: 1px solid var(--border);
+      }
+      .step.done .step-lbl {
+        color: var(--green);
+      }
+      .step.active .step-lbl {
+        color: var(--text);
+      }
+      .step.idle .step-lbl {
+        color: var(--faint);
+      }
+      .step-line {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+        margin: 0 8px;
+      }
+      .step-line.done {
+        background: var(--green);
+      }
+
+      /* RECIPIENT SEARCH */
+      .field-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 7px;
+      }
+      .input-wrap {
+        position: relative;
+        margin-bottom: 1.25rem;
+      }
+      .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        pointer-events: none;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 12px 14px 12px 40px;
+        background: var(--bg3);
+        color: var(--text);
+        border: 1.5px solid var(--border2);
+        border-radius: 10px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        appearance: none;
+      }
+      input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(61, 127, 255, 0.08);
+      }
+      input::placeholder {
+        color: var(--faint);
+      }
+      input.ok-field {
+        border-color: var(--green) !important;
+      }
+      input.err-field {
+        border-color: var(--red) !important;
+      }
+
+      /* RECIPIENT RESULT */
+      .recipient-found {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: var(--green-bg);
+        border: 1.5px solid rgba(61, 220, 132, 0.25);
+        margin-bottom: 1.25rem;
+        cursor: pointer;
+      }
+      .r-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--green-bg);
+        border: 1px solid rgba(61, 220, 132, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: var(--green);
+        flex-shrink: 0;
+      }
+      .r-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .r-email {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .r-badge {
+        margin-left: auto;
+        font-size: 0.7rem;
+        color: var(--green);
+        background: rgba(61, 220, 132, 0.1);
+        border-radius: 100px;
+        padding: 3px 10px;
+        border: 1px solid rgba(61, 220, 132, 0.2);
+      }
+
+      /* AMOUNT */
+      .amount-wrap {
+        position: relative;
+        margin-bottom: 0.5rem;
+      }
+      .curr-prefix {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .amount-input {
+        width: 100%;
+        padding: 1.1rem 1rem 1.1rem 2.8rem;
+        background: var(--bg3);
+        color: var(--blue);
+        border: 1.5px solid var(--border2);
+        border-radius: 12px;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.2rem;
+        letter-spacing: 0.04em;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        appearance: none;
+      }
+      .amount-input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(61, 127, 255, 0.08);
+      }
+      .amount-input::placeholder {
+        color: var(--faint);
+      }
+
+      /* NOTE */
+      textarea {
+        width: 100%;
+        padding: 11px 14px;
+        resize: none;
+        background: var(--bg3);
+        color: var(--text);
+        border: 1.5px solid var(--border2);
+        border-radius: 10px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.15s;
+        line-height: 1.55;
+        margin-bottom: 1.5rem;
+      }
+      textarea:focus {
+        border-color: var(--blue);
+      }
+      textarea::placeholder {
+        color: var(--faint);
+      }
+
+      /* SUBMIT */
+      .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background: var(--blue);
+        color: #fff;
+        border: none;
+        border-radius: 11px;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        transition: all 0.15s;
+        letter-spacing: 0.01em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .submit-btn:hover:not(:disabled) {
+        background: #2d6fef;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(61, 127, 255, 0.25);
+      }
+      .submit-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* CONFIRM MODAL */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(8, 12, 20, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+      }
+      .modal {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: 20px;
+        padding: 2rem;
+        width: 100%;
+        max-width: 420px;
+      }
+      .modal-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.3rem;
+      }
+      .modal-sub {
+        font-size: 0.825rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      .confirm-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+      }
+      .confirm-row:last-of-type {
+        border-bottom: none;
+      }
+      .cr-key {
+        color: var(--muted);
+      }
+      .cr-val {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .modal-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--blue-bg);
+        border: 1px solid rgba(61, 127, 255, 0.2);
+        border-radius: 10px;
+      }
+      .mt-label {
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .mt-val {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        color: var(--blue);
+        letter-spacing: 0.04em;
+      }
+      .modal-btns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 1.25rem;
+      }
+      .btn-cancel {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        color: var(--muted);
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-cancel:hover {
+        color: var(--text);
+        border-color: var(--border2);
+      }
+      .btn-confirm {
+        background: var(--blue);
+        color: #fff;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 700;
+        padding: 12px;
+        border-radius: 9px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-confirm:hover {
+        background: #2d6fef;
+      }
+      .btn-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* FEEDBACK */
+      .msg-box {
+        border-radius: 11px;
+        padding: 13px 16px;
+        margin-bottom: 1.25rem;
+        font-size: 0.875rem;
+        line-height: 1.55;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .msg-err {
+        background: var(--red-bg);
+        border: 1px solid rgba(255, 82, 82, 0.2);
+        color: var(--red);
+      }
+      .msg-ok {
+        background: var(--green-bg);
+        border: 1px solid rgba(61, 220, 132, 0.2);
+        color: var(--green);
+      }
+
+      /* SUCCESS */
+      .success-state {
+        text-align: center;
+        padding: 2rem 1rem;
+      }
+      .success-ring {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 1.25rem;
+        background: var(--blue-bg);
+        border: 2px solid rgba(61, 127, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+      .success-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.4rem;
+        color: var(--blue);
+      }
+      .success-sub {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 1.75rem;
+        line-height: 1.6;
+      }
+      .btn-again {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        color: var(--text);
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 11px 24px;
+        border-radius: 9px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      .btn-dash {
+        background: var(--blue);
+        color: #fff;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 700;
+        padding: 11px 24px;
+        border-radius: 9px;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* RIGHT PANEL */
+      .panel-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.1rem;
+      }
+      .balance-card {
+        background: linear-gradient(135deg, #0e1630, #080d20);
+        border: 1px solid rgba(61, 127, 255, 0.2);
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .bc-glow {
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(61, 127, 255, 0.07) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .bc-label {
+        font-size: 0.72rem;
+        color: rgba(61, 127, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.4rem;
+      }
+      .bc-amount {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.4rem;
+        color: var(--blue);
+        letter-spacing: 0.03em;
+        line-height: 1;
+      }
+      .bc-after {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+      .bc-after span {
+        color: var(--red);
+        font-weight: 600;
+      }
+
+      .summary-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+      }
+      .sum-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.825rem;
+      }
+      .sum-row:last-child {
+        border-bottom: none;
+      }
+      .sum-key {
+        color: var(--muted);
+      }
+      .sum-val {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .sum-val.blue {
+        color: var(--blue);
+      }
+      .sum-val.red {
+        color: var(--red);
+      }
+
+      /* RECENT */
+      .history-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem;
+      }
+      .hist-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .hist-item:last-child {
+        border-bottom: none;
+      }
+      .hist-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--blue-bg);
+        border: 1px solid rgba(61, 127, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+      .hist-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .hist-name {
+        font-size: 0.825rem;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .hist-date {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .hist-amt {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--red);
+      }
+
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #fff;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.45s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.06s;
+      }
+      .fu2 {
+        animation-delay: 0.14s;
+      }
+      .fu3 {
+        animation-delay: 0.22s;
+      }
+
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .modal {
+        animation: modalIn 0.2s ease both;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      class Sidebar extends Component {
+        render() {
+          const { user } = this.props;
+          const initials = user?.username
+            ? user.username.slice(0, 2).toUpperCase()
+            : "??";
+          return (
+            <div className="sidebar">
+              <div
+                className="sidebar-logo"
+                onClick={() => (window.location.href = "index.html")}
+              >
+                Wallet<span>Wo</span>
+              </div>
+              <div className="sidebar-section">Main</div>
+              {[
+                ["🏠", "Dashboard", false],
+                ["💳", "My Wallet", false],
+                ["↕️", "Transactions", false],
+                ["📥", "Deposit", false],
+                ["📤", "Send Money", true],
+              ].map(([ic, lbl, active]) => (
+                <button
+                  key={lbl}
+                  className={`nav-item${active ? " active" : ""}`}
+                  onClick={() => {
+                    if (lbl === "Dashboard")
+                      window.location.href = "dashboard.html";
+                    if (lbl === "Deposit")
+                      window.location.href = "deposit.html";
+                  }}
+                >
+                  <span className="ni-icon">{ic}</span>
+                  {lbl}
+                </button>
+              ))}
+              <div className="sidebar-section">Account</div>
+              {[
+                ["⚙️", "Settings"],
+                ["🔔", "Notifications"],
+                ["🛡️", "Security"],
+              ].map(([ic, lbl]) => (
+                <button key={lbl} className="nav-item">
+                  <span className="ni-icon">{ic}</span>
+                  {lbl}
+                </button>
+              ))}
+              <div className="sidebar-bottom">
+                <div className="user-chip">
+                  <div className="user-avatar">{initials}</div>
+                  <div className="user-info">
+                    <div className="user-name">{user?.username || "—"}</div>
+                    <div className="user-email">{user?.email || "—"}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      /* ── CONFIRM MODAL ── */
+      class ConfirmModal extends Component {
+        render() {
+          const { recipient, amount, note, loading, onConfirm, onCancel } =
+            this.props;
+          return (
+            <div
+              className="modal-overlay"
+              onClick={(e) => e.target === e.currentTarget && onCancel()}
+            >
+              <div className="modal">
+                <div className="modal-title">Confirm Transfer</div>
+                <div className="modal-sub">
+                  Please review the details before sending.
+                </div>
+                <div className="confirm-row">
+                  <span className="cr-key">To</span>
+                  <span className="cr-val">@{recipient?.username}</span>
+                </div>
+                <div className="confirm-row">
+                  <span className="cr-key">Email</span>
+                  <span className="cr-val">{recipient?.email}</span>
+                </div>
+                {note && (
+                  <div className="confirm-row">
+                    <span className="cr-key">Note</span>
+                    <span
+                      className="cr-val"
+                      style={{
+                        maxWidth: 200,
+                        textAlign: "right",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {note}
+                    </span>
+                  </div>
+                )}
+                <div className="confirm-row">
+                  <span className="cr-key">Fee</span>
+                  <span className="cr-val" style={{ color: "var(--green)" }}>
+                    FREE
+                  </span>
+                </div>
+                <div className="modal-total">
+                  <div>
+                    <div className="mt-label">You're sending</div>
+                  </div>
+                  <div className="mt-val">
+                    $
+                    {parseFloat(amount).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </div>
+                </div>
+                <div className="modal-btns">
+                  <button
+                    className="btn-cancel"
+                    onClick={onCancel}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn-confirm"
+                    onClick={onConfirm}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="spinner" /> Sending…
+                      </>
+                    ) : (
+                      "📤 Send now"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      /* ── SEND PAGE ── */
+      class SendPage extends Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            user: null,
+            wallet: null,
+            pageLoading: true,
+            // form
+            recipientUsername: "",
+            recipientResult: null,
+            lookupLoading: false,
+            lookupError: "",
+            amount: "",
+            note: "",
+            fieldError: "",
+            formError: "",
+            // modal / flow
+            showModal: false,
+            sending: false,
+            success: false,
+            successData: null,
+          };
+          this._lookupTimer = null;
+        }
+
+        getToken() {
+          return (
+            localStorage.getItem("access") ||
+            localStorage.getItem("access_token") ||
+            sessionStorage.getItem("access") ||
+            sessionStorage.getItem("access_token") ||
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2Nzc4MTQzLCJpYXQiOjE3NzY3Nzc4NDMsImp0aSI6IjU0NDQxMzY3ODhiYzQyNTA5OWJkNjhiYzdkOGQ4YjNhIiwidXNlcl9pZCI6IjEifQ.mgN9OPyaV-27436qoOT9eDxcuLXYkOaDHcrh-CaNyeE"
+          );
+        }
+
+        async componentDidMount() {
+          const token = this.getToken();
+          try {
+            const [userRes, walletRes] = await Promise.all([
+              fetch("http://localhost:8000/api/users/me", {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              fetch("http://localhost:8000/api/wallet", {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+            const user = userRes.ok ? await userRes.json() : null;
+            const wallet = walletRes.ok ? await walletRes.json() : null;
+            this.setState({ user, wallet, pageLoading: false });
+          } catch {
+            this.setState({ pageLoading: false });
+          }
+        }
+
+        handleRecipientChange(val) {
+          this.setState({
+            recipientUsername: val,
+            recipientResult: null,
+            lookupError: "",
+            formError: "",
+          });
+          clearTimeout(this._lookupTimer);
+          if (val.trim().length >= 2) {
+            this._lookupTimer = setTimeout(
+              () => this.lookupUser(val.trim()),
+              600
+            );
+          }
+        }
+
+        async lookupUser(username) {
+          const token = this.getToken();
+          this.setState({ lookupLoading: true, lookupError: "" });
+          try {
+            // Lookup endpoint — adjust to your actual route
+            const res = await fetch(
+              `http://localhost:8000/api/users/?username=${encodeURIComponent(
+                username
+              )}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            if (!res.ok) throw new Error("User not found");
+            const data = await res.json();
+            // Handle list or single object
+            const found = Array.isArray(data)
+              ? data.find((u) => u.username === username)
+              : data.username === username
+              ? data
+              : null;
+            if (!found) throw new Error("User not found");
+            // Prevent sending to yourself
+            if (found.id === this.state.user?.id)
+              throw new Error("You can't send money to yourself.");
+            this.setState({ recipientResult: found, lookupLoading: false });
+          } catch (err) {
+            this.setState({ lookupLoading: false, lookupError: err.message });
+          }
+        }
+
+        validateForm() {
+          const { recipientResult, amount, wallet } = this.state;
+          const parsed = parseFloat(amount);
+          if (!recipientResult)
+            return "Please enter and confirm a valid recipient.";
+          if (!amount || isNaN(parsed) || parsed <= 0)
+            return "Please enter a valid amount.";
+          if (parsed > 100000) return "Maximum single transfer is $100,000.";
+          const balance = parseFloat(wallet?.balance ?? 0);
+          if (parsed > balance)
+            return `Insufficient balance. Available: $${balance.toLocaleString(
+              "en-US",
+              { minimumFractionDigits: 2 }
+            )}`;
+          return null;
+        }
+
+        handleReview(e) {
+          e.preventDefault();
+          const err = this.validateForm();
+          if (err) {
+            this.setState({ formError: err });
+            return;
+          }
+          this.setState({ showModal: true, formError: "" });
+        }
+
+        async handleConfirmSend() {
+          const { recipientResult, amount, note } = this.state;
+          this.setState({ sending: true });
+          const token = this.getToken();
+
+          try {
+            const res = await fetch("http://localhost:8000/api/wallet/send", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                receiver_username: recipientResult.username,
+                amount: parseFloat(amount),
+                ...(note ? { note } : {}),
+              }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              const msg =
+                data?.detail ||
+                data?.message ||
+                data?.amount?.[0] ||
+                "Transfer failed. Please try again.";
+              this.setState({
+                sending: false,
+                showModal: false,
+                formError: msg,
+              });
+              return;
+            }
+
+            const sentAmount = parseFloat(amount);
+            this.setState((prev) => ({
+              sending: false,
+              showModal: false,
+              success: true,
+              successData: {
+                recipient: recipientResult,
+                amount: sentAmount,
+                note,
+              },
+              wallet: prev.wallet
+                ? {
+                    ...prev.wallet,
+                    balance: parseFloat(prev.wallet.balance || 0) - sentAmount,
+                  }
+                : prev.wallet,
+              recipientUsername: "",
+              recipientResult: null,
+              amount: "",
+              note: "",
+            }));
+          } catch {
+            this.setState({
+              sending: false,
+              showModal: false,
+              formError: "Network error — could not reach server.",
+            });
+          }
+        }
+
+        resetForm() {
+          this.setState({
+            success: false,
+            successData: null,
+            recipientUsername: "",
+            recipientResult: null,
+            amount: "",
+            note: "",
+            formError: "",
+          });
+        }
+
+        render() {
+          const {
+            user,
+            wallet,
+            pageLoading,
+            recipientUsername,
+            recipientResult,
+            lookupLoading,
+            lookupError,
+            amount,
+            note,
+            fieldError,
+            formError,
+            showModal,
+            sending,
+            success,
+            successData,
+          } = this.state;
+
+          const balance = parseFloat(wallet?.balance ?? 0);
+          const parsed = parseFloat(amount) || 0;
+          const newBal = balance - parsed;
+
+          // Step indicator
+          const step1 = recipientResult ? "done" : "active";
+          const step2 = recipientResult ? (amount ? "done" : "active") : "idle";
+          const step3 = recipientResult && amount ? "active" : "idle";
+
+          return (
+            <div style={{ display: "flex", width: "100%" }}>
+              <Sidebar user={user} />
+
+              {showModal && (
+                <ConfirmModal
+                  recipient={recipientResult}
+                  amount={amount}
+                  note={note}
+                  loading={sending}
+                  onConfirm={() => this.handleConfirmSend()}
+                  onCancel={() => this.setState({ showModal: false })}
+                />
+              )}
+
+              <div className="main">
+                <div className="topbar">
+                  <div className="topbar-left">
+                    <h1>Send Money</h1>
+                    <p>Transfer funds to any WalletWo user instantly</p>
+                  </div>
+                  <div className="topbar-right">
+                    <div className="icon-btn">🔔</div>
+                    <div
+                      style={{
+                        background: "var(--red-bg)",
+                        border: "1px solid rgba(255,82,82,0.2)",
+                        fontSize: "0.75rem",
+                        fontFamily: "'Outfit',sans-serif",
+                        padding: "0 14px",
+                        height: 38,
+                        display: "flex",
+                        alignItems: "center",
+                        color: "var(--red)",
+                        fontWeight: 600,
+                        borderRadius: 9,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = "login.html";
+                      }}
+                    >
+                      Sign out
+                    </div>
+                  </div>
+                </div>
+
+                <div className="content">
+                  {pageLoading ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "60vh",
+                        flexDirection: "column",
+                        gap: "1rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          border: "3px solid var(--border2)",
+                          borderTopColor: "var(--blue)",
+                          animation: "spin 0.8s linear infinite",
+                        }}
+                      />
+                      <div
+                        style={{ fontSize: "0.875rem", color: "var(--muted)" }}
+                      >
+                        Loading…
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="send-grid fu">
+                      {/* ── LEFT: FORM ── */}
+                      <div className="card fu1">
+                        {success ? (
+                          <div className="success-state">
+                            <div className="success-ring">✓</div>
+                            <div className="success-title">Transfer Sent!</div>
+                            <div className="success-sub">
+                              <strong
+                                style={{
+                                  color: "var(--text)",
+                                  fontSize: "1.1rem",
+                                }}
+                              >
+                                $
+                                {successData.amount.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </strong>{" "}
+                              was sent to{" "}
+                              <strong style={{ color: "var(--blue)" }}>
+                                @{successData.recipient.username}
+                              </strong>
+                              .<br />
+                              {successData.note && (
+                                <>
+                                  <em style={{ color: "var(--muted)" }}>
+                                    "{successData.note}"
+                                  </em>
+                                  <br />
+                                </>
+                              )}
+                              New balance:{" "}
+                              <strong style={{ color: "var(--text)" }}>
+                                $
+                                {newBal.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </strong>
+                            </div>
+                            <div>
+                              <button
+                                className="btn-again"
+                                onClick={() => this.resetForm()}
+                              >
+                                Send again
+                              </button>
+                              <button
+                                className="btn-dash"
+                                onClick={() =>
+                                  (window.location.href = "dashboard.html")
+                                }
+                              >
+                                Dashboard
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="card-heading">Send Funds</div>
+                            <div className="card-sub">
+                              Search a WalletWo username, enter an amount and
+                              send.
+                            </div>
+
+                            {/* STEPS */}
+                            <div className="steps">
+                              {[
+                                ["1", "Recipient", step1],
+                                ["2", "Amount", step2],
+                                ["3", "Review", step3],
+                              ].map(([n, lbl, s], i) => (
+                                <React.Fragment key={n}>
+                                  <div className={`step ${s}`}>
+                                    <div className="step-num">
+                                      {s === "done" ? "✓" : n}
+                                    </div>
+                                    <span className="step-lbl">{lbl}</span>
+                                  </div>
+                                  {i < 2 && (
+                                    <div
+                                      className={`step-line${
+                                        s === "done" ? " done" : ""
+                                      }`}
+                                    />
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </div>
+
+                            {formError && (
+                              <div className="msg-box msg-err">
+                                ⚠ {formError}
+                              </div>
+                            )}
+
+                            <form onSubmit={(e) => this.handleReview(e)}>
+                              {/* RECIPIENT */}
+                              <div className="field-label">
+                                Recipient username
+                              </div>
+                              <div
+                                className="input-wrap"
+                                style={{
+                                  marginBottom: lookupError ? "0.4rem" : "",
+                                }}
+                              >
+                                <span className="input-icon">@</span>
+                                <input
+                                  type="text"
+                                  placeholder="Search by username…"
+                                  value={recipientUsername}
+                                  onChange={(e) =>
+                                    this.handleRecipientChange(e.target.value)
+                                  }
+                                  className={
+                                    recipientResult
+                                      ? "ok-field"
+                                      : lookupError
+                                      ? "err-field"
+                                      : ""
+                                  }
+                                />
+                                {lookupLoading && (
+                                  <div
+                                    style={{
+                                      position: "absolute",
+                                      right: 14,
+                                      top: "50%",
+                                      transform: "translateY(-50%)",
+                                    }}
+                                  >
+                                    <div
+                                      className="spinner"
+                                      style={{ borderTopColor: "var(--blue)" }}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                              {lookupError && (
+                                <div
+                                  style={{
+                                    fontSize: "0.78rem",
+                                    color: "var(--red)",
+                                    marginBottom: "0.75rem",
+                                  }}
+                                >
+                                  {lookupError}
+                                </div>
+                              )}
+
+                              {recipientResult && (
+                                <div
+                                  className="recipient-found"
+                                  onClick={() =>
+                                    this.setState({
+                                      recipientUsername: "",
+                                      recipientResult: null,
+                                    })
+                                  }
+                                >
+                                  <div className="r-avatar">
+                                    {recipientResult.username
+                                      .slice(0, 2)
+                                      .toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <div className="r-name">
+                                      @{recipientResult.username}
+                                    </div>
+                                    <div className="r-email">
+                                      {recipientResult.email}
+                                    </div>
+                                  </div>
+                                  <span className="r-badge">✓ Verified</span>
+                                </div>
+                              )}
+
+                              {/* AMOUNT */}
+                              <div
+                                className="field-label"
+                                style={{
+                                  marginTop: recipientResult ? "0" : "0.25rem",
+                                }}
+                              >
+                                Amount
+                              </div>
+                              <div className="amount-wrap">
+                                <span className="curr-prefix">$</span>
+                                <input
+                                  className="amount-input"
+                                  type="text"
+                                  inputMode="decimal"
+                                  placeholder="0.00"
+                                  value={amount}
+                                  onChange={(e) =>
+                                    this.setState({
+                                      amount: e.target.value.replace(
+                                        /[^0-9.]/g,
+                                        ""
+                                      ),
+                                      formError: "",
+                                    })
+                                  }
+                                  disabled={!recipientResult}
+                                  style={
+                                    !recipientResult
+                                      ? { opacity: 0.4, cursor: "not-allowed" }
+                                      : {}
+                                  }
+                                />
+                              </div>
+                              {amount && parsed > balance && (
+                                <div
+                                  style={{
+                                    fontSize: "0.78rem",
+                                    color: "var(--red)",
+                                    margin: "0.4rem 0 0.75rem",
+                                  }}
+                                >
+                                  Insufficient balance — available $
+                                  {balance.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                  })}
+                                </div>
+                              )}
+
+                              {/* NOTE */}
+                              <div
+                                className="field-label"
+                                style={{ marginTop: "1.25rem" }}
+                              >
+                                Note{" "}
+                                <span
+                                  style={{
+                                    color: "var(--faint)",
+                                    textTransform: "none",
+                                    letterSpacing: 0,
+                                  }}
+                                >
+                                  (optional)
+                                </span>
+                              </div>
+                              <textarea
+                                rows={2}
+                                placeholder="What's this for? e.g. Dinner split, rent…"
+                                value={note}
+                                onChange={(e) =>
+                                  this.setState({ note: e.target.value })
+                                }
+                                disabled={!recipientResult}
+                                style={
+                                  !recipientResult
+                                    ? { opacity: 0.4, cursor: "not-allowed" }
+                                    : {}
+                                }
+                              />
+
+                              <button
+                                type="submit"
+                                className="submit-btn"
+                                disabled={
+                                  !recipientResult ||
+                                  !amount ||
+                                  parsed > balance
+                                }
+                              >
+                                Review transfer →
+                              </button>
+                            </form>
+                          </>
+                        )}
+                      </div>
+
+                      {/* ── RIGHT: PANEL ── */}
+                      <div>
+                        <div className="balance-card fu2">
+                          <div className="bc-glow" />
+                          <div className="bc-label">Available Balance</div>
+                          <div className="bc-amount">
+                            $
+                            {balance.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </div>
+                          {parsed > 0 && parsed <= balance && (
+                            <div className="bc-after">
+                              After transfer:{" "}
+                              <span>
+                                -$
+                                {parsed.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </span>{" "}
+                              → $
+                              {(balance - parsed).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="panel-title fu3">Transfer Summary</div>
+                        <div className="summary-card fu3">
+                          {[
+                            [
+                              "To",
+                              recipientResult
+                                ? `@${recipientResult.username}`
+                                : "—",
+                              false,
+                              false,
+                            ],
+                            [
+                              "Amount",
+                              parsed > 0
+                                ? `$${parsed.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                  })}`
+                                : "—",
+                              true,
+                              false,
+                            ],
+                            ["Fee", "FREE", false, false],
+                            ["ETA", "Instant", false, false],
+                            [
+                              "Remaining",
+                              parsed > 0 && parsed <= balance
+                                ? `$${(balance - parsed).toLocaleString(
+                                    "en-US",
+                                    { minimumFractionDigits: 2 }
+                                  )}`
+                                : "—",
+                              false,
+                              parsed > balance,
+                            ],
+                          ].map(([k, v, blu, red]) => (
+                            <div className="sum-row" key={k}>
+                              <span className="sum-key">{k}</span>
+                              <span
+                                className={`sum-val${blu ? " blue" : ""}${
+                                  red ? " red" : ""
+                                }`}
+                              >
+                                {v}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div
+                          className="panel-title"
+                          style={{ marginTop: "1.25rem" }}
+                        >
+                          Recent Transfers
+                        </div>
+                        <div className="history-card fu3">
+                          {[
+                            ["@sarah_k", "$80.00", "1 day ago"],
+                            ["@mike.dev", "$35.00", "3 days ago"],
+                            ["@priya_w", "$200.00", "1 week ago"],
+                          ].map(([to, amt, when]) => (
+                            <div className="hist-item" key={to}>
+                              <div className="hist-icon">📤</div>
+                              <div className="hist-info">
+                                <div className="hist-name">Sent to {to}</div>
+                                <div className="hist-date">{when}</div>
+                              </div>
+                              <div className="hist-amt">-{amt}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<SendPage />);
+    </script>
+  </body>
+</html>

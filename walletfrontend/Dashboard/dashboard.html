@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --lime-bg: rgba(198, 241, 53, 0.08);
+        --blue: #3d7fff;
+        --blue-bg: rgba(61, 127, 255, 0.1);
+        --green: #3ddc84;
+        --green-bg: rgba(61, 220, 132, 0.08);
+        --red: #ff5252;
+        --red-bg: rgba(255, 82, 82, 0.08);
+        --gold: #f0c050;
+        --gold-bg: rgba(240, 192, 80, 0.08);
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem 1.25rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+      }
+      .sidebar-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.7rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2.5rem;
+        padding-left: 0.5rem;
+        cursor: pointer;
+      }
+      .sidebar-logo span {
+        color: var(--lime);
+      }
+      .sidebar-section {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--faint);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding-left: 0.5rem;
+        margin-bottom: 0.6rem;
+        margin-top: 1.5rem;
+      }
+      .sidebar-section:first-of-type {
+        margin-top: 0;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: all 0.15s;
+        margin-bottom: 2px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: "Outfit", sans-serif;
+      }
+      .nav-item:hover {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .nav-item.active {
+        background: var(--lime-bg);
+        color: var(--lime);
+      }
+      .nav-item .ni-icon {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-bottom {
+        margin-top: auto;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        cursor: pointer;
+      }
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--lime-bg);
+        border: 1px solid rgba(198, 241, 53, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: var(--lime);
+        flex-shrink: 0;
+      }
+      .user-info {
+        min-width: 0;
+      }
+      .user-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .user-email {
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* MAIN */
+      .main {
+        margin-left: 240px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* TOPBAR */
+      .topbar {
+        height: 68px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2.5rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(8, 12, 20, 0.8);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .topbar-left h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.04em;
+      }
+      .topbar-left p {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: border-color 0.15s;
+      }
+      .icon-btn:hover {
+        border-color: var(--border2);
+      }
+
+      /* CONTENT */
+      .content {
+        padding: 2rem 2.5rem;
+        flex: 1;
+      }
+
+      /* LOADING / ERROR */
+      .state-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 60vh;
+        gap: 1rem;
+        text-align: center;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid var(--border2);
+        border-top-color: var(--lime);
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .state-label {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .err-icon {
+        font-size: 2.5rem;
+      }
+      .err-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.04em;
+      }
+      .err-msg {
+        font-size: 0.875rem;
+        color: var(--muted);
+        max-width: 360px;
+        line-height: 1.6;
+      }
+      .retry-btn {
+        background: var(--lime);
+        color: #080c14;
+        border: none;
+        border-radius: 9px;
+        padding: 10px 24px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 0.5rem;
+      }
+      .retry-btn:hover {
+        background: var(--lime-dark);
+      }
+
+      /* WALLET BALANCE HERO */
+      .balance-hero {
+        background: linear-gradient(135deg, #111e10 0%, #0a1408 100%);
+        border: 1px solid rgba(198, 241, 53, 0.2);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+      }
+      .bh-glow {
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(198, 241, 53, 0.08) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .bh-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.25rem;
+        position: relative;
+      }
+      .bh-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(198, 241, 53, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+      }
+      .bh-amount {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.5rem;
+        letter-spacing: 0.02em;
+        color: var(--lime);
+        line-height: 1;
+      }
+      .bh-currency {
+        font-size: 1.2rem;
+        color: rgba(198, 241, 53, 0.5);
+        margin-right: 6px;
+      }
+      .bh-wallet-id {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+
+      .bh-card {
+        width: 180px;
+        height: 106px;
+        border-radius: 12px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #1c2e1a, #0f2010);
+        border: 1px solid rgba(198, 241, 53, 0.2);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .mini-chip {
+        width: 22px;
+        height: 16px;
+        border-radius: 3px;
+        background: linear-gradient(135deg, #d4a843, #f0c860);
+      }
+      .mini-cn {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 0.72rem;
+        color: rgba(198, 241, 53, 0.5);
+        letter-spacing: 0.1em;
+      }
+      .mini-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: rgba(198, 241, 53, 0.35);
+        text-align: right;
+      }
+
+      .bh-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: rgba(198, 241, 53, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+      }
+      .bh-stat {
+        background: rgba(10, 20, 8, 0.8);
+        padding: 1rem 1.25rem;
+      }
+      .bh-stat-val {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+        letter-spacing: 0.04em;
+      }
+      .bh-stat-lbl {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .pos {
+        color: var(--green);
+      }
+      .neg {
+        color: var(--red);
+      }
+
+      /* GRID */
+      .dash-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .dash-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      /* CARD */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+      .card-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .card-title-action {
+        font-size: 0.75rem;
+        color: var(--lime);
+        cursor: pointer;
+        text-transform: none;
+        letter-spacing: 0;
+        font-weight: 500;
+      }
+
+      /* QUICK ACTIONS */
+      .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 1rem 0.5rem;
+        border-radius: 12px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: "Outfit", sans-serif;
+      }
+      .action-btn:hover {
+        border-color: var(--lime);
+        background: var(--lime-bg);
+      }
+      .action-icon {
+        font-size: 1.3rem;
+      }
+      .action-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      /* WALLET INFO */
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-key {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .info-val {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .status-pill {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pill-active {
+        background: var(--green-bg);
+        color: var(--green);
+        border: 1px solid rgba(61, 220, 132, 0.2);
+      }
+      .pill-pending {
+        background: var(--gold-bg);
+        color: var(--gold);
+        border: 1px solid rgba(240, 192, 80, 0.2);
+      }
+
+      /* SPEND BARS */
+      .spend-row {
+        margin-bottom: 1rem;
+      }
+      .spend-row:last-child {
+        margin-bottom: 0;
+      }
+      .spend-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        font-size: 0.825rem;
+      }
+      .spend-name {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .spend-amt {
+        color: var(--muted);
+      }
+      .bar-track {
+        height: 6px;
+        background: var(--bg3);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 1s ease;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.5s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.05s;
+      }
+      .fu2 {
+        animation-delay: 0.12s;
+      }
+      .fu3 {
+        animation-delay: 0.2s;
+      }
+      .fu4 {
+        animation-delay: 0.28s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      /* ── SIDEBAR ── */
+      class Sidebar extends Component {
+        render() {
+          const { user } = this.props;
+          const initials = user?.username
+            ? user.username.slice(0, 2).toUpperCase()
+            : "??";
+
+          return (
+            <div className="sidebar">
+              <div
+                className="sidebar-logo"
+                onClick={() => (window.location.href = "index.html")}
+              >
+                Wallet<span>Wo</span>
+              </div>
+
+              <div className="sidebar-section">Main</div>
+              {[
+                ["🏠", "Dashboard", "index.html"],
+                ["💳", "My Wallet", "index.html"],
+                ["↕️", "Transactions", "../Transactions/transactions.html"],
+                ["📤", "Transfer", "../Transfer/transfer.html"],
+                ["📥", "Deposit", "../Deposit/deposit.html"],
+              ].map(([ic, label, link]) => (
+                <button
+                  key={label}
+                  className="nav-item"
+                  onClick={() => (window.location.href = link)}
+                >
+                  <span className="ni-icon">{ic}</span>
+                  {label}
+                </button>
+              ))}
+
+              <div className="sidebar-section">Account</div>
+              {[
+                ["⚙️", "Settings", false],
+                ["🔔", "Notifications", false],
+                ["🛡️", "Security", false],
+              ].map(([ic, label]) => (
+                <button key={label} className="nav-item">
+                  <span className="ni-icon">{ic}</span>
+                  {label}
+                </button>
+              ))}
+
+              <div className="sidebar-bottom">
+                <div className="user-chip">
+                  <div className="user-avatar">{initials}</div>
+                  <div className="user-info">
+                    <div className="user-name">{user?.username || "—"}</div>
+                    <div className="user-email">{user?.email || "—"}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      /* ── WALLET SECTION ── */
+      class WalletView extends Component {
+        render() {
+          const { wallet, user } = this.props;
+
+          // Wallet fields — adapt keys to match your actual API response
+          const balance = wallet?.balance ?? wallet?.amount ?? "0.00";
+          const currency = wallet?.currency ?? "USD";
+          const walletId = wallet?.wallet_id ?? wallet?.id ?? "—";
+          const status = wallet?.status ?? "active";
+          const createdAt = wallet?.created_at
+            ? new Date(wallet.created_at).toLocaleDateString()
+            : "—";
+
+          const income = wallet?.total_income ?? "—";
+          const expense = wallet?.total_expense ?? "—";
+          const savings = wallet?.savings ?? "—";
+
+          return (
+            <>
+              {/* BALANCE HERO */}
+              <div className="balance-hero fu">
+                <div className="bh-glow" />
+                <div className="bh-top">
+                  <div>
+                    <div className="bh-label">Total Balance</div>
+                    <div className="bh-amount">
+                      <span className="bh-currency">{currency}</span>
+                      {parseFloat(balance).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </div>
+                    <div className="bh-wallet-id">
+                      Wallet ID: {walletId} · {user?.username}
+                    </div>
+                  </div>
+                  <div className="bh-card">
+                    <div className="mini-chip" />
+                    <div>
+                      <div className="mini-cn">
+                        •••• •••• ••••{" "}
+                        {String(walletId).slice(-4).padStart(4, "0")}
+                      </div>
+                      <div className="mini-logo">WW</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bh-stats">
+                  {[
+                    [
+                      "Total Income",
+                      income !== "—"
+                        ? "+$" + parseFloat(income).toLocaleString()
+                        : "—",
+                      "pos",
+                    ],
+                    [
+                      "Total Spent",
+                      expense !== "—"
+                        ? "-$" + parseFloat(expense).toLocaleString()
+                        : "—",
+                      "neg",
+                    ],
+                    [
+                      "Savings",
+                      savings !== "—"
+                        ? "$" + parseFloat(savings).toLocaleString()
+                        : "—",
+                      "",
+                    ],
+                  ].map(([lbl, val, cls]) => (
+                    <div className="bh-stat" key={lbl}>
+                      <div className={`bh-stat-val ${cls}`}>{val}</div>
+                      <div className="bh-stat-lbl">{lbl}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ROW 1 */}
+              <div className="dash-grid fu fu2">
+                {/* Quick Actions */}
+                <div className="card">
+                  <div className="card-title">Quick Actions</div>
+                  <div className="actions-grid">
+                    {[
+                      ["📤", "Send"],
+                      ["📥", "Receive"],
+                      ["🔄", "Transfer"],
+                      ["📊", "History"],
+                    ].map(([ic, lbl]) => (
+                      <div className="action-btn" key={lbl}>
+                        <span className="action-icon">{ic}</span>
+                        <span className="action-label">{lbl}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Wallet Info */}
+                <div className="card">
+                  <div className="card-title">Wallet Details</div>
+                  {[
+                    ["Owner", user?.username ?? "—"],
+                    ["Email", user?.email ?? "—"],
+                    ["User ID", user?.id ?? "—"],
+                    ["Currency", currency],
+                    ["Status", status],
+                    ["Opened", createdAt],
+                  ].map(([k, v]) => (
+                    <div className="info-row" key={k}>
+                      <span className="info-key">{k}</span>
+                      {k === "Status" ? (
+                        <span
+                          className={`status-pill ${
+                            v === "active" ? "pill-active" : "pill-pending"
+                          }`}
+                        >
+                          {v}
+                        </span>
+                      ) : (
+                        <span className="info-val">{v}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ROW 2 */}
+              <div className="dash-grid fu fu3">
+                {/* Spending breakdown — placeholder until transaction data arrives */}
+                <div className="card">
+                  <div className="card-title">
+                    Spending Breakdown
+                    <span className="card-title-action">This month</span>
+                  </div>
+                  {[
+                    ["Food & Dining", 65, "var(--lime)"],
+                    ["Transport", 42, "var(--blue)"],
+                    ["Entertainment", 28, "var(--gold)"],
+                    ["Utilities", 55, "var(--green)"],
+                    ["Shopping", 33, "var(--red)"],
+                  ].map(([name, pct, color]) => (
+                    <div className="spend-row" key={name}>
+                      <div className="spend-meta">
+                        <span className="spend-name">{name}</span>
+                        <span className="spend-amt">{pct}%</span>
+                      </div>
+                      <div className="bar-track">
+                        <div
+                          className="bar-fill"
+                          style={{ width: `${pct}%`, background: color }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Raw wallet data */}
+                <div className="card">
+                  <div className="card-title">
+                    Raw API Response
+                    <span className="card-title-action">wallet endpoint</span>
+                  </div>
+                  <pre
+                    style={{
+                      fontSize: "0.72rem",
+                      color: "var(--muted)",
+                      lineHeight: 1.7,
+                      background: "var(--bg3)",
+                      borderRadius: 10,
+                      padding: "1rem",
+                      overflowX: "auto",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                      maxHeight: 240,
+                      overflowY: "auto",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    {JSON.stringify(wallet, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </>
+          );
+        }
+      }
+
+      /* ── DASHBOARD ── */
+      class Dashboard extends Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            user: null,
+            wallet: null,
+            loading: true,
+            error: null,
+          };
+        }
+
+        getToken() {
+          // Try localStorage then sessionStorage
+          return (
+            localStorage.getItem("access") ||
+            localStorage.getItem("access_token") ||
+            localStorage.getItem("token") ||
+            sessionStorage.getItem("access") ||
+            sessionStorage.getItem("access_token") ||
+            sessionStorage.getItem("token") ||
+            // Fallback: hardcoded token for development
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2Nzc4MTQzLCJpYXQiOjE3NzY3Nzc4NDMsImp0aSI6IjU0NDQxMzY3ODhiYzQyNTA5OWJkNjhiYzdkOGQ4YjNhIiwidXNlcl9pZCI6IjEifQ.mgN9OPyaV-27436qoOT9eDxcuLXYkOaDHcrh-CaNyeE"
+          );
+        }
+
+        async componentDidMount() {
+          const token = this.getToken();
+          if (!token) {
+            this.setState({
+              loading: false,
+              error: "No auth token found. Please sign in.",
+            });
+            return;
+          }
+
+          try {
+            // 1️⃣ Fetch current user
+            const userRes = await fetch("http://localhost:8000/api/users/me", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            });
+            if (!userRes.ok)
+              throw new Error(
+                `User fetch failed: ${userRes.status} ${userRes.statusText}`
+              );
+            const user = await userRes.json();
+
+            // 2️⃣ Fetch wallet
+            const walletRes = await fetch("http://localhost:8000/api/wallet", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            });
+            if (!walletRes.ok)
+              throw new Error(
+                `Wallet fetch failed: ${walletRes.status} ${walletRes.statusText}`
+              );
+            const wallet = await walletRes.json();
+
+            this.setState({ user, wallet, loading: false });
+          } catch (err) {
+            this.setState({ loading: false, error: err.message });
+          }
+        }
+
+        render() {
+          const { user, wallet, loading, error } = this.state;
+          const now = new Date();
+          const greeting =
+            now.getHours() < 12
+              ? "Good morning"
+              : now.getHours() < 18
+              ? "Good afternoon"
+              : "Good evening";
+
+          return (
+            <div style={{ display: "flex", width: "100%" }}>
+              <Sidebar user={user} />
+
+              <div className="main">
+                {/* TOPBAR */}
+                <div className="topbar">
+                  <div className="topbar-left">
+                    <h1>
+                      {greeting}
+                      {user ? `, ${user.username}` : ""} 👋
+                    </h1>
+                    <p>
+                      {now.toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                  <div className="topbar-right">
+                    <div className="icon-btn">🔔</div>
+                    <div className="icon-btn">⚙️</div>
+                    <div
+                      className="icon-btn"
+                      style={{
+                        background: "var(--red-bg)",
+                        border: "1px solid rgba(255,82,82,0.2)",
+                        fontSize: "0.75rem",
+                        fontFamily: "'Outfit',sans-serif",
+                        width: "auto",
+                        padding: "0 14px",
+                        color: "var(--red)",
+                        fontWeight: 600,
+                      }}
+                      onClick={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = "../Login/login.html";
+                      }}
+                    >
+                      Sign out
+                    </div>
+                  </div>
+                </div>
+
+                {/* BODY */}
+                <div className="content">
+                  {loading && (
+                    <div className="state-screen">
+                      <div className="spinner" />
+                      <div className="state-label">Loading your wallet…</div>
+                    </div>
+                  )}
+
+                  {!loading && error && (
+                    <div className="state-screen">
+                      <div className="err-icon">⚠️</div>
+                      <div className="err-title">Something went wrong</div>
+                      <div className="err-msg">{error}</div>
+                      <button
+                        className="retry-btn"
+                        onClick={() => {
+                          this.setState({ loading: true, error: null });
+                          this.componentDidMount();
+                        }}
+                      >
+                        Try again
+                      </button>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <button
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--muted)",
+                            fontFamily: "Outfit",
+                            fontSize: "0.8rem",
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            (window.location.href = "../Login/login.html")
+                          }
+                        >
+                          ← Back to login
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {!loading && !error && wallet && (
+                    <WalletView wallet={wallet} user={user} />
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(
+        <Dashboard />
+      );
+    </script>
+  </body>
+</html>

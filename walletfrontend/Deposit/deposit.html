@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Deposit</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --lime-bg: rgba(198, 241, 53, 0.08);
+        --green: #3ddc84;
+        --green-bg: rgba(61, 220, 132, 0.08);
+        --red: #ff5252;
+        --red-bg: rgba(255, 82, 82, 0.08);
+        --gold: #f0c050;
+        --gold-bg: rgba(240, 192, 80, 0.08);
+        --blue: #3d7fff;
+        --blue-bg: rgba(61, 127, 255, 0.1);
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem 1.25rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+      }
+      .sidebar-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.7rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2.5rem;
+        padding-left: 0.5rem;
+        cursor: pointer;
+      }
+      .sidebar-logo span {
+        color: var(--lime);
+      }
+      .sidebar-section {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--faint);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding-left: 0.5rem;
+        margin-bottom: 0.6rem;
+        margin-top: 1.5rem;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: all 0.15s;
+        margin-bottom: 2px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: "Outfit", sans-serif;
+      }
+      .nav-item:hover {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .nav-item.active {
+        background: var(--lime-bg);
+        color: var(--lime);
+      }
+      .ni-icon {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+      .sidebar-bottom {
+        margin-top: auto;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+      }
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--lime-bg);
+        border: 1px solid rgba(198, 241, 53, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: var(--lime);
+        flex-shrink: 0;
+      }
+      .user-info {
+        min-width: 0;
+      }
+      .user-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .user-email {
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* MAIN */
+      .main {
+        margin-left: 240px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 68px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2.5rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(8, 12, 20, 0.8);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .topbar-left h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.04em;
+      }
+      .topbar-left p {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: border-color 0.15s;
+      }
+      .content {
+        padding: 2.5rem;
+        flex: 1;
+        max-width: 900px;
+      }
+
+      /* DEPOSIT LAYOUT */
+      .deposit-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      /* FORM CARD */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.75rem;
+      }
+      .card-heading {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.35rem;
+      }
+      .card-sub {
+        font-size: 0.825rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        line-height: 1.55;
+      }
+
+      /* AMOUNT INPUT */
+      .amount-wrap {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+      .currency-label {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+        color: var(--muted);
+        pointer-events: none;
+        letter-spacing: 0.04em;
+      }
+      .amount-input {
+        width: 100%;
+        padding: 1.1rem 1rem 1.1rem 2.8rem;
+        background: var(--bg3);
+        color: var(--lime);
+        border: 1.5px solid var(--border2);
+        border-radius: 12px;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.2rem;
+        letter-spacing: 0.04em;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        appearance: none;
+      }
+      .amount-input:focus {
+        border-color: var(--lime);
+        box-shadow: 0 0 0 3px rgba(198, 241, 53, 0.08);
+      }
+      .amount-input::placeholder {
+        color: var(--faint);
+      }
+
+      /* QUICK AMOUNTS */
+      .quick-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.6rem;
+      }
+      .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 1.5rem;
+      }
+      .quick-btn {
+        padding: 9px 0;
+        border-radius: 9px;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--muted);
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        transition: all 0.15s;
+        text-align: center;
+      }
+      .quick-btn:hover {
+        border-color: var(--lime);
+        color: var(--lime);
+        background: var(--lime-bg);
+      }
+      .quick-btn.selected {
+        border-color: var(--lime);
+        color: var(--lime);
+        background: var(--lime-bg);
+      }
+
+      /* METHOD */
+      .method-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.6rem;
+      }
+      .method-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 1.75rem;
+      }
+      .method-card {
+        padding: 0.9rem 1rem;
+        border-radius: 10px;
+        cursor: pointer;
+        background: var(--bg3);
+        border: 1.5px solid var(--border);
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .method-card:hover {
+        border-color: var(--border2);
+      }
+      .method-card.selected {
+        border-color: var(--lime);
+        background: var(--lime-bg);
+      }
+      .method-icon {
+        font-size: 1.1rem;
+      }
+      .method-name {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .method-desc {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+
+      /* SUBMIT */
+      .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background: var(--lime);
+        color: #080c14;
+        border: none;
+        border-radius: 11px;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        transition: all 0.15s;
+        letter-spacing: 0.01em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .submit-btn:hover:not(:disabled) {
+        background: var(--lime-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(198, 241, 53, 0.18);
+      }
+      .submit-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* FEEDBACK */
+      .msg-box {
+        border-radius: 11px;
+        padding: 14px 16px;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.875rem;
+        line-height: 1.55;
+      }
+      .msg-err {
+        background: var(--red-bg);
+        border: 1px solid rgba(255, 82, 82, 0.2);
+        color: var(--red);
+      }
+      .msg-ok {
+        background: var(--green-bg);
+        border: 1px solid rgba(61, 220, 132, 0.2);
+        color: var(--green);
+      }
+
+      /* SUCCESS OVERLAY */
+      .success-state {
+        text-align: center;
+        padding: 2rem 1rem;
+      }
+      .success-ring {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 1.25rem;
+        background: var(--green-bg);
+        border: 2px solid rgba(61, 220, 132, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+      .success-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.4rem;
+        color: var(--green);
+      }
+      .success-sub {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 1.75rem;
+        line-height: 1.6;
+      }
+      .btn-again {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        color: var(--text);
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 11px 24px;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.15s;
+        margin-right: 10px;
+      }
+      .btn-again:hover {
+        border-color: var(--lime);
+        color: var(--lime);
+      }
+      .btn-dash {
+        background: var(--lime);
+        color: #080c14;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 700;
+        padding: 11px 24px;
+        border-radius: 9px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-dash:hover {
+        background: var(--lime-dark);
+      }
+
+      /* RIGHT PANEL */
+      .panel-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.1rem;
+      }
+
+      /* BALANCE CARD */
+      .balance-card {
+        background: linear-gradient(135deg, #111e10 0%, #0a1408 100%);
+        border: 1px solid rgba(198, 241, 53, 0.2);
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .bc-glow {
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(198, 241, 53, 0.07) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .bc-label {
+        font-size: 0.72rem;
+        color: rgba(198, 241, 53, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.4rem;
+      }
+      .bc-amount {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.4rem;
+        color: var(--lime);
+        letter-spacing: 0.03em;
+        line-height: 1;
+      }
+      .bc-after {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+      .bc-after span {
+        color: var(--green);
+        font-weight: 600;
+      }
+
+      /* SUMMARY TABLE */
+      .summary-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+      }
+      .sum-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.825rem;
+      }
+      .sum-row:last-child {
+        border-bottom: none;
+      }
+      .sum-key {
+        color: var(--muted);
+      }
+      .sum-val {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .sum-val.highlight {
+        color: var(--lime);
+      }
+
+      /* HISTORY */
+      .history-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem;
+      }
+      .hist-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .hist-item:last-child {
+        border-bottom: none;
+      }
+      .hist-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--green-bg);
+        border: 1px solid rgba(61, 220, 132, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+      .hist-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .hist-name {
+        font-size: 0.825rem;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .hist-date {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .hist-amt {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--green);
+      }
+
+      /* LOADING SPINNER */
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(8, 12, 20, 0.3);
+        border-top-color: #080c14;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.45s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.06s;
+      }
+      .fu2 {
+        animation-delay: 0.14s;
+      }
+      .fu3 {
+        animation-delay: 0.22s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      const QUICK_AMOUNTS = [10, 50, 100, 500];
+      const METHODS = [
+        {
+          id: "bank",
+          icon: "🏦",
+          name: "Bank Transfer",
+          desc: "ACH · 1-3 days",
+        },
+        { id: "card", icon: "💳", name: "Debit Card", desc: "Instant" },
+        { id: "crypto", icon: "₿", name: "Crypto", desc: "BTC / ETH" },
+        {
+          id: "mobile",
+          icon: "📱",
+          name: "Mobile Money",
+          desc: "eSewa · Khalti",
+        },
+      ];
+
+      class Sidebar extends Component {
+        render() {
+          const { user } = this.props;
+          const initials = user?.username
+            ? user.username.slice(0, 2).toUpperCase()
+            : "??";
+          return (
+            <div className="sidebar">
+              <div
+                className="sidebar-logo"
+                onClick={() => (window.location.href = "index.html")}
+              >
+                Wallet<span>Wo</span>
+              </div>
+              <div className="sidebar-section">Main</div>
+              {[
+                ["🏠", "Dashboard", false],
+                ["💳", "My Wallet", false],
+                ["↕️", "Transactions", false],
+                ["📥", "Deposit", true],
+                ["📤", "Send Money", false],
+              ].map(([ic, lbl, active]) => (
+                <button
+                  key={lbl}
+                  className={`nav-item${active ? " active" : ""}`}
+                  onClick={() => {
+                    if (lbl === "Dashboard")
+                      window.location.href = "dashboard.html";
+                    if (lbl === "Send Money")
+                      window.location.href = "send.html";
+                  }}
+                >
+                  <span className="ni-icon">{ic}</span>
+                  {lbl}
+                </button>
+              ))}
+              <div className="sidebar-section">Account</div>
+              {[
+                ["⚙️", "Settings"],
+                ["🔔", "Notifications"],
+                ["🛡️", "Security"],
+              ].map(([ic, lbl]) => (
+                <button key={lbl} className="nav-item">
+                  <span className="ni-icon">{ic}</span>
+                  {lbl}
+                </button>
+              ))}
+              <div className="sidebar-bottom">
+                <div className="user-chip">
+                  <div className="user-avatar">{initials}</div>
+                  <div className="user-info">
+                    <div className="user-name">{user?.username || "—"}</div>
+                    <div className="user-email">{user?.email || "—"}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      class DepositPage extends Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            user: null,
+            wallet: null,
+            amount: "",
+            selectedQuick: null,
+            method: "card",
+            loading: false,
+            pageLoading: true,
+            success: false,
+            successAmount: 0,
+            error: "",
+            fieldError: "",
+          };
+        }
+
+        getToken() {
+          return (
+            localStorage.getItem("access") ||
+            localStorage.getItem("access_token") ||
+            sessionStorage.getItem("access") ||
+            sessionStorage.getItem("access_token") ||
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2Nzc4MTQzLCJpYXQiOjE3NzY3Nzc4NDMsImp0aSI6IjU0NDQxMzY3ODhiYzQyNTA5OWJkNjhiYzdkOGQ4YjNhIiwidXNlcl9pZCI6IjEifQ.mgN9OPyaV-27436qoOT9eDxcuLXYkOaDHcrh-CaNyeE"
+          );
+        }
+
+        async componentDidMount() {
+          const token = this.getToken();
+          try {
+            const [userRes, walletRes] = await Promise.all([
+              fetch("http://localhost:8000/api/users/me", {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              fetch("http://localhost:8000/api/wallet", {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+            const user = userRes.ok ? await userRes.json() : null;
+            const wallet = walletRes.ok ? await walletRes.json() : null;
+            this.setState({ user, wallet, pageLoading: false });
+          } catch {
+            this.setState({ pageLoading: false });
+          }
+        }
+
+        setQuick(val) {
+          this.setState({
+            amount: String(val),
+            selectedQuick: val,
+            fieldError: "",
+          });
+        }
+
+        handleAmountChange(e) {
+          const v = e.target.value.replace(/[^0-9.]/g, "");
+          const quick = QUICK_AMOUNTS.includes(parseFloat(v))
+            ? parseFloat(v)
+            : null;
+          this.setState({ amount: v, selectedQuick: quick, fieldError: "" });
+        }
+
+        async handleSubmit(e) {
+          e.preventDefault();
+          const { amount } = this.state;
+          const parsed = parseFloat(amount);
+
+          if (!amount || isNaN(parsed) || parsed <= 0) {
+            this.setState({
+              fieldError: "Please enter a valid amount greater than 0.",
+            });
+            return;
+          }
+          if (parsed > 100000) {
+            this.setState({
+              fieldError: "Maximum single deposit is $100,000.",
+            });
+            return;
+          }
+
+          this.setState({ loading: true, error: "", fieldError: "" });
+          const token = this.getToken();
+
+          try {
+            const res = await fetch(
+              "http://localhost:8000/api/wallet/deposit",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ amount: parsed }),
+              }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              const msg =
+                data?.amount?.[0] ||
+                data?.detail ||
+                data?.message ||
+                "Deposit failed. Please try again.";
+              this.setState({ loading: false, error: msg });
+              return;
+            }
+
+            // Update local wallet balance
+            this.setState((prev) => ({
+              loading: false,
+              success: true,
+              successAmount: parsed,
+              wallet: prev.wallet
+                ? {
+                    ...prev.wallet,
+                    balance: parseFloat(prev.wallet.balance || 0) + parsed,
+                  }
+                : prev.wallet,
+              amount: "",
+              selectedQuick: null,
+            }));
+          } catch {
+            this.setState({
+              loading: false,
+              error: "Network error — could not reach server.",
+            });
+          }
+        }
+
+        resetForm() {
+          this.setState({
+            success: false,
+            successAmount: 0,
+            amount: "",
+            selectedQuick: null,
+            error: "",
+          });
+        }
+
+        render() {
+          const {
+            user,
+            wallet,
+            amount,
+            selectedQuick,
+            method,
+            loading,
+            pageLoading,
+            success,
+            successAmount,
+            error,
+            fieldError,
+          } = this.state;
+          const balance = parseFloat(wallet?.balance ?? 0);
+          const parsed = parseFloat(amount) || 0;
+          const newBal = balance + parsed;
+
+          return (
+            <div style={{ display: "flex", width: "100%" }}>
+              <Sidebar user={user} />
+              <div className="main">
+                <div className="topbar">
+                  <div className="topbar-left">
+                    <h1>Deposit Funds</h1>
+                    <p>Add money to your WalletWo balance</p>
+                  </div>
+                  <div className="topbar-right">
+                    <div className="icon-btn">🔔</div>
+                    <div
+                      className="icon-btn"
+                      style={{
+                        background: "var(--red-bg)",
+                        border: "1px solid rgba(255,82,82,0.2)",
+                        fontSize: "0.75rem",
+                        fontFamily: "'Outfit',sans-serif",
+                        width: "auto",
+                        padding: "0 14px",
+                        color: "var(--red)",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = "login.html";
+                      }}
+                    >
+                      Sign out
+                    </div>
+                  </div>
+                </div>
+
+                <div className="content">
+                  {pageLoading ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "60vh",
+                        flexDirection: "column",
+                        gap: "1rem",
+                      }}
+                    >
+                      <div
+                        className="spinner"
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderWidth: 3,
+                          borderColor: "var(--border2)",
+                          borderTopColor: "var(--lime)",
+                        }}
+                      />
+                      <div
+                        style={{ fontSize: "0.875rem", color: "var(--muted)" }}
+                      >
+                        Loading…
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="deposit-grid fu">
+                      {/* ── LEFT: FORM ── */}
+                      <div className="card fu1">
+                        {success ? (
+                          <div className="success-state">
+                            <div className="success-ring">✓</div>
+                            <div className="success-title">
+                              Deposit Successful!
+                            </div>
+                            <div className="success-sub">
+                              <strong
+                                style={{
+                                  color: "var(--text)",
+                                  fontSize: "1.1rem",
+                                }}
+                              >
+                                $
+                                {successAmount.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </strong>{" "}
+                              has been added to your wallet.
+                              <br />
+                              Your new balance is{" "}
+                              <strong style={{ color: "var(--lime)" }}>
+                                $
+                                {newBal.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </strong>
+                            </div>
+                            <div>
+                              <button
+                                className="btn-again"
+                                onClick={() => this.resetForm()}
+                              >
+                                Deposit more
+                              </button>
+                              <button
+                                className="btn-dash"
+                                onClick={() =>
+                                  (window.location.href = "dashboard.html")
+                                }
+                              >
+                                Go to dashboard
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="card-heading">Add Funds</div>
+                            <div className="card-sub">
+                              Enter an amount and select your preferred funding
+                              method.
+                            </div>
+
+                            {error && (
+                              <div className="msg-box msg-err">⚠ {error}</div>
+                            )}
+
+                            <form onSubmit={(e) => this.handleSubmit(e)}>
+                              {/* AMOUNT */}
+                              <div style={{ marginBottom: "0.6rem" }}>
+                                <div className="quick-label">Enter amount</div>
+                                <div
+                                  className="amount-wrap"
+                                  style={{
+                                    marginBottom: fieldError ? "0.4rem" : "0",
+                                  }}
+                                >
+                                  <span className="currency-label">$</span>
+                                  <input
+                                    className="amount-input"
+                                    type="text"
+                                    inputMode="decimal"
+                                    placeholder="0.00"
+                                    value={amount}
+                                    onChange={(e) => this.handleAmountChange(e)}
+                                  />
+                                </div>
+                                {fieldError && (
+                                  <div
+                                    style={{
+                                      fontSize: "0.78rem",
+                                      color: "var(--red)",
+                                      marginBottom: "0.75rem",
+                                    }}
+                                  >
+                                    {fieldError}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* QUICK AMOUNTS */}
+                              <div
+                                className="quick-label"
+                                style={{ marginTop: "1rem" }}
+                              >
+                                Quick select
+                              </div>
+                              <div className="quick-grid">
+                                {QUICK_AMOUNTS.map((v) => (
+                                  <button
+                                    key={v}
+                                    type="button"
+                                    className={`quick-btn${
+                                      selectedQuick === v ? " selected" : ""
+                                    }`}
+                                    onClick={() => this.setQuick(v)}
+                                  >
+                                    ${v}
+                                  </button>
+                                ))}
+                              </div>
+
+                              {/* METHOD */}
+                              <div className="method-label">Payment method</div>
+                              <div className="method-grid">
+                                {METHODS.map((m) => (
+                                  <div
+                                    key={m.id}
+                                    className={`method-card${
+                                      method === m.id ? " selected" : ""
+                                    }`}
+                                    onClick={() =>
+                                      this.setState({ method: m.id })
+                                    }
+                                  >
+                                    <span className="method-icon">
+                                      {m.icon}
+                                    </span>
+                                    <div>
+                                      <div className="method-name">
+                                        {m.name}
+                                      </div>
+                                      <div className="method-desc">
+                                        {m.desc}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <button
+                                type="submit"
+                                className="submit-btn"
+                                disabled={loading || !amount}
+                              >
+                                {loading ? (
+                                  <>
+                                    <div className="spinner" />
+                                    Processing…
+                                  </>
+                                ) : (
+                                  <>
+                                    📥 Deposit{" "}
+                                    {amount
+                                      ? `$${parseFloat(amount).toLocaleString(
+                                          "en-US",
+                                          {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                          }
+                                        )}`
+                                      : "Funds"}
+                                  </>
+                                )}
+                              </button>
+                            </form>
+                          </>
+                        )}
+                      </div>
+
+                      {/* ── RIGHT: INFO PANEL ── */}
+                      <div>
+                        {/* Current balance */}
+                        <div className="balance-card fu2">
+                          <div className="bc-glow" />
+                          <div className="bc-label">Current Balance</div>
+                          <div className="bc-amount">
+                            $
+                            {balance.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </div>
+                          {parsed > 0 && (
+                            <div className="bc-after">
+                              After deposit:{" "}
+                              <span>
+                                $
+                                {newBal.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Deposit summary */}
+                        <div className="panel-title fu3">Deposit Summary</div>
+                        <div className="summary-card fu3">
+                          {[
+                            [
+                              "Deposit amount",
+                              parsed > 0
+                                ? `$${parsed.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                  })}`
+                                : "—",
+                              parsed > 0,
+                            ],
+                            ["Processing fee", "FREE", false],
+                            [
+                              "Method",
+                              METHODS.find((m) => m.id === method)?.name ?? "—",
+                              false,
+                            ],
+                            [
+                              "Settlement",
+                              method === "card"
+                                ? "Instant"
+                                : "1-3 business days",
+                              false,
+                            ],
+                            [
+                              "New balance",
+                              parsed > 0
+                                ? `$${newBal.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                  })}`
+                                : "—",
+                              parsed > 0,
+                            ],
+                          ].map(([k, v, hi]) => (
+                            <div className="sum-row" key={k}>
+                              <span className="sum-key">{k}</span>
+                              <span
+                                className={`sum-val${hi ? " highlight" : ""}`}
+                              >
+                                {v}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Recent deposits placeholder */}
+                        <div
+                          className="panel-title fu3"
+                          style={{ marginTop: "1.25rem" }}
+                        >
+                          Recent Deposits
+                        </div>
+                        <div className="history-card fu3">
+                          {[
+                            ["$250.00", "2 days ago"],
+                            ["$100.00", "5 days ago"],
+                            ["$50.00", "1 week ago"],
+                          ].map(([amt, when]) => (
+                            <div className="hist-item" key={when}>
+                              <div className="hist-icon">📥</div>
+                              <div className="hist-info">
+                                <div className="hist-name">Wallet Deposit</div>
+                                <div className="hist-date">{when}</div>
+                              </div>
+                              <div className="hist-amt">{amt}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(
+        <DepositPage />
+      );
+    </script>
+  </body>
+</html>

@@ -447,18 +447,55 @@
           };
         }
 
-        handleSubmit(e) {
+        async handleSubmit(e) {
           e.preventDefault();
+
           const { username, password } = this.state;
+
           if (!username.trim()) {
             this.setState({ error: "Please enter your username." });
             return;
           }
+
           if (!password) {
             this.setState({ error: "Please enter your password." });
             return;
           }
-          this.setState({ success: true, error: "" });
+
+          try {
+            const res = await fetch("http://localhost:8000/api/users/login/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username,
+                password,
+              }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              this.setState({
+                error: data.detail || "Invalid credentials.",
+              });
+              return;
+            }
+
+            localStorage.setItem("access", data.access);
+            localStorage.setItem("refresh", data.refresh);
+
+            this.setState({ success: true, error: "" });
+
+            setTimeout(() => {
+              window.location.href = "../Dashboard/dashboard.html";
+            }, 1000);
+          } catch (err) {
+            this.setState({
+              error: "Server error. Is your API running?",
+            });
+          }
         }
 
         render() {
@@ -618,51 +655,12 @@
 
                         <div className="divider">or</div>
 
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: 10,
-                          }}
-                        >
-                          {[
-                            ["🍎", "Apple"],
-                            ["🔵", "Google"],
-                          ].map(([ic, lbl]) => (
-                            <button
-                              key={lbl}
-                              type="button"
-                              style={{
-                                background: "var(--bg2)",
-                                border: "1px solid var(--border2)",
-                                borderRadius: 10,
-                                color: "var(--muted)",
-                                fontFamily: "Outfit",
-                                fontSize: "0.85rem",
-                                fontWeight: 500,
-                                padding: "11px",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 8,
-                                transition: "all 0.15s",
-                              }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.borderColor =
-                                  "var(--border2)")
-                              }
-                            >
-                              {ic} {lbl}
-                            </button>
-                          ))}
-                        </div>
-
                         <p className="signup-prompt">
                           Don't have an account?{" "}
                           <a
                             onClick={() =>
-                              (window.location.href = "register.html")
+                              (window.location.href =
+                                "../Register/register.html")
                             }
                           >
                             Sign up free →

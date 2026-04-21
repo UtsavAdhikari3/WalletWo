@@ -387,14 +387,49 @@
           return null;
         }
 
-        handleSubmit(e) {
+        async handleSubmit(e) {
           e.preventDefault();
+
           const err = this.validate();
           if (err) {
             this.setState({ error: err });
             return;
           }
-          this.setState({ success: true, error: "" });
+
+          const { username, email, password, phone } = this.state;
+
+          try {
+            const res = await fetch(
+              "http://localhost:8000/api/users/register/",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  username,
+                  email,
+                  password,
+                  phone_number: phone,
+                }),
+              }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              this.setState({ error: data.detail || "Registration failed." });
+              return;
+            }
+            this.setState({
+              success: true,
+              error: "",
+            });
+          } catch (err) {
+            this.setState({
+              error: "Server error. Is your API running?",
+            });
+          }
         }
 
         render() {
