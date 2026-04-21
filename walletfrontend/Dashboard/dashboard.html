@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" src="../Components/sidebar.js"></script>
     <style>
       *,
       *::before,
@@ -588,71 +589,70 @@
       const { Component } = React;
 
       /* ── SIDEBAR ── */
-      class Sidebar extends Component {
-        render() {
-          const { user } = this.props;
-          const initials = user?.username
-            ? user.username.slice(0, 2).toUpperCase()
-            : "??";
+      //   class Sidebar extends Component {
+      //     render() {
+      //       const { user } = this.props;
+      //       const initials = user?.username
+      //         ? user.username.slice(0, 2).toUpperCase()
+      //         : "??";
 
-          return (
-            <div className="sidebar">
-              <div
-                className="sidebar-logo"
-                onClick={() => (window.location.href = "index.html")}
-              >
-                Wallet<span>Wo</span>
-              </div>
+      //       return (
+      //         <div className="sidebar">
+      //           <div
+      //             className="sidebar-logo"
+      //             onClick={() => (window.location.href = "index.html")}
+      //           >
+      //             Wallet<span>Wo</span>
+      //           </div>
 
-              <div className="sidebar-section">Main</div>
-              {[
-                ["🏠", "Dashboard", "index.html"],
-                ["💳", "My Wallet", "index.html"],
-                ["↕️", "Transactions", "../Transactions/transactions.html"],
-                ["📤", "Transfer", "../Transfer/transfer.html"],
-                ["📥", "Deposit", "../Deposit/deposit.html"],
-              ].map(([ic, label, link]) => (
-                <button
-                  key={label}
-                  className="nav-item"
-                  onClick={() => (window.location.href = link)}
-                >
-                  <span className="ni-icon">{ic}</span>
-                  {label}
-                </button>
-              ))}
+      //           <div className="sidebar-section">Main</div>
+      //           {[
+      //             ["🏠", "Dashboard", "index.html"],
+      //             ["💳", "My Wallet", "index.html"],
+      //             ["↕️", "Transactions", "../Transactions/transactions.html"],
+      //             ["📤", "Transfer", "../Transfer/transfer.html"],
+      //             ["📥", "Deposit", "../Deposit/deposit.html"],
+      //           ].map(([ic, label, link]) => (
+      //             <button
+      //               key={label}
+      //               className="nav-item"
+      //               onClick={() => (window.location.href = link)}
+      //             >
+      //               <span className="ni-icon">{ic}</span>
+      //               {label}
+      //             </button>
+      //           ))}
 
-              <div className="sidebar-section">Account</div>
-              {[
-                ["⚙️", "Settings", false],
-                ["🔔", "Notifications", false],
-                ["🛡️", "Security", false],
-              ].map(([ic, label]) => (
-                <button key={label} className="nav-item">
-                  <span className="ni-icon">{ic}</span>
-                  {label}
-                </button>
-              ))}
+      //           <div className="sidebar-section">Account</div>
+      //           {[
+      //             ["⚙️", "Settings", false],
+      //             ["🔔", "Notifications", false],
+      //             ["🛡️", "Security", false],
+      //           ].map(([ic, label]) => (
+      //             <button key={label} className="nav-item">
+      //               <span className="ni-icon">{ic}</span>
+      //               {label}
+      //             </button>
+      //           ))}
 
-              <div className="sidebar-bottom">
-                <div className="user-chip">
-                  <div className="user-avatar">{initials}</div>
-                  <div className="user-info">
-                    <div className="user-name">{user?.username || "—"}</div>
-                    <div className="user-email">{user?.email || "—"}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        }
-      }
+      //           <div className="sidebar-bottom">
+      //             <div className="user-chip">
+      //               <div className="user-avatar">{initials}</div>
+      //               <div className="user-info">
+      //                 <div className="user-name">{user?.username || "—"}</div>
+      //                 <div className="user-email">{user?.email || "—"}</div>
+      //               </div>
+      //             </div>
+      //           </div>
+      //         </div>
+      //       );
+      //     }
+      //   }
 
       /* ── WALLET SECTION ── */
       class WalletView extends Component {
         render() {
           const { wallet, user } = this.props;
-
           // Wallet fields — adapt keys to match your actual API response
           const balance = wallet?.balance ?? wallet?.amount ?? "0.00";
           const currency = wallet?.currency ?? "USD";
@@ -919,7 +919,7 @@
 
           return (
             <div style={{ display: "flex", width: "100%" }}>
-              <Sidebar user={user} />
+              <Sidebar user={user} activePage="dashboard" />
 
               <div className="main">
                 {/* TOPBAR */}

@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" src="../Components/sidebar.js"></script>
     <style>
       *,
       *::before,
@@ -689,66 +690,66 @@
         },
       ];
 
-      class Sidebar extends Component {
-        render() {
-          const { user } = this.props;
-          const initials = user?.username
-            ? user.username.slice(0, 2).toUpperCase()
-            : "??";
-          return (
-            <div className="sidebar">
-              <div
-                className="sidebar-logo"
-                onClick={() => (window.location.href = "index.html")}
-              >
-                Wallet<span>Wo</span>
-              </div>
-              <div className="sidebar-section">Main</div>
-              {[
-                ["🏠", "Dashboard", false],
-                ["💳", "My Wallet", false],
-                ["↕️", "Transactions", false],
-                ["📥", "Deposit", true],
-                ["📤", "Send Money", false],
-              ].map(([ic, lbl, active]) => (
-                <button
-                  key={lbl}
-                  className={`nav-item${active ? " active" : ""}`}
-                  onClick={() => {
-                    if (lbl === "Dashboard")
-                      window.location.href = "dashboard.html";
-                    if (lbl === "Send Money")
-                      window.location.href = "send.html";
-                  }}
-                >
-                  <span className="ni-icon">{ic}</span>
-                  {lbl}
-                </button>
-              ))}
-              <div className="sidebar-section">Account</div>
-              {[
-                ["⚙️", "Settings"],
-                ["🔔", "Notifications"],
-                ["🛡️", "Security"],
-              ].map(([ic, lbl]) => (
-                <button key={lbl} className="nav-item">
-                  <span className="ni-icon">{ic}</span>
-                  {lbl}
-                </button>
-              ))}
-              <div className="sidebar-bottom">
-                <div className="user-chip">
-                  <div className="user-avatar">{initials}</div>
-                  <div className="user-info">
-                    <div className="user-name">{user?.username || "—"}</div>
-                    <div className="user-email">{user?.email || "—"}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        }
-      }
+      //   class Sidebar extends Component {
+      //     render() {
+      //       const { user } = this.props;
+      //       const initials = user?.username
+      //         ? user.username.slice(0, 2).toUpperCase()
+      //         : "??";
+      //       return (
+      //         <div className="sidebar">
+      //           <div
+      //             className="sidebar-logo"
+      //             onClick={() => (window.location.href = "index.html")}
+      //           >
+      //             Wallet<span>Wo</span>
+      //           </div>
+      //           <div className="sidebar-section">Main</div>
+      //           {[
+      //             ["🏠", "Dashboard", false],
+      //             ["💳", "My Wallet", false],
+      //             ["↕️", "Transactions", false],
+      //             ["📥", "Deposit", true],
+      //             ["📤", "Send Money", false],
+      //           ].map(([ic, lbl, active]) => (
+      //             <button
+      //               key={lbl}
+      //               className={`nav-item${active ? " active" : ""}`}
+      //               onClick={() => {
+      //                 if (lbl === "Dashboard")
+      //                   window.location.href = "dashboard.html";
+      //                 if (lbl === "Send Money")
+      //                   window.location.href = "send.html";
+      //               }}
+      //             >
+      //               <span className="ni-icon">{ic}</span>
+      //               {lbl}
+      //             </button>
+      //           ))}
+      //           <div className="sidebar-section">Account</div>
+      //           {[
+      //             ["⚙️", "Settings"],
+      //             ["🔔", "Notifications"],
+      //             ["🛡️", "Security"],
+      //           ].map(([ic, lbl]) => (
+      //             <button key={lbl} className="nav-item">
+      //               <span className="ni-icon">{ic}</span>
+      //               {lbl}
+      //             </button>
+      //           ))}
+      //           <div className="sidebar-bottom">
+      //             <div className="user-chip">
+      //               <div className="user-avatar">{initials}</div>
+      //               <div className="user-info">
+      //                 <div className="user-name">{user?.username || "—"}</div>
+      //                 <div className="user-email">{user?.email || "—"}</div>
+      //               </div>
+      //             </div>
+      //           </div>
+      //         </div>
+      //       );
+      //     }
+      //   }
 
       class DepositPage extends Component {
         constructor(props) {
@@ -911,7 +912,7 @@
 
           return (
             <div style={{ display: "flex", width: "100%" }}>
-              <Sidebar user={user} />
+              <Sidebar user={user} activePage="deposit" />
               <div className="main">
                 <div className="topbar">
                   <div className="topbar-left">
