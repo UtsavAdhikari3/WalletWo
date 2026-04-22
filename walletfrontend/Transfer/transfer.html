@@ -1068,55 +1068,12 @@
         handleRecipientChange(val) {
           this.setState({
             recipientUsername: val,
-            recipientResult: null,
-            lookupError: "",
-            formError: "",
           });
-          clearTimeout(this._lookupTimer);
-          if (val.trim().length >= 2) {
-            this._lookupTimer = setTimeout(
-              () => this.lookupUser(val.trim()),
-              600
-            );
-          }
-        }
-
-        async lookupUser(username) {
-          const token = this.getToken();
-          this.setState({ lookupLoading: true, lookupError: "" });
-          try {
-            // Lookup endpoint — adjust to your actual route
-            const res = await fetch(
-              `http://localhost:8000/api/users/?username=${encodeURIComponent(
-                username
-              )}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            if (!res.ok) throw new Error("User not found");
-            const data = await res.json();
-            // Handle list or single object
-            const found = Array.isArray(data)
-              ? data.find((u) => u.username === username)
-              : data.username === username
-              ? data
-              : null;
-            if (!found) throw new Error("User not found");
-            // Prevent sending to yourself
-            if (found.id === this.state.user?.id)
-              throw new Error("You can't send money to yourself.");
-            this.setState({ recipientResult: found, lookupLoading: false });
-          } catch (err) {
-            this.setState({ lookupLoading: false, lookupError: err.message });
-          }
         }
 
         validateForm() {
           const { recipientResult, amount, wallet } = this.state;
           const parsed = parseFloat(amount);
-          if (!recipientResult)
-            return "Please enter and confirm a valid recipient.";
           if (!amount || isNaN(parsed) || parsed <= 0)
             return "Please enter a valid amount.";
           if (parsed > 100000) return "Maximum single transfer is $100,000.";
@@ -1129,34 +1086,79 @@
           return null;
         }
 
-        handleReview(e) {
+        handleReview = async (e) => {
           e.preventDefault();
+
           const err = this.validateForm();
           if (err) {
             this.setState({ formError: err });
             return;
           }
-          this.setState({ showModal: true, formError: "" });
-        }
 
-        async handleConfirmSend() {
+          const { recipientUsername } = this.state;
+          const token = this.getToken();
+
+          this.setState({ loadingRecipient: true, formError: "" });
+
+          try {
+            const res = await fetch(
+              "http://localhost:8000/api/wallet/receiver/",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  phone_number: recipientUsername,
+                }),
+              }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              this.setState({
+                loadingRecipient: false,
+                formError: data.error || "User not found",
+              });
+              return;
+            }
+
+            this.setState({
+              recipientResult: data,
+              loadingRecipient: false,
+              showModal: true,
+            });
+          } catch (err) {
+            this.setState({
+              loadingRecipient: false,
+              formError: "Network error",
+            });
+          }
+        };
+
+        handleConfirmSend = async () => {
           const { recipientResult, amount, note } = this.state;
           this.setState({ sending: true });
           const token = this.getToken();
 
           try {
-            const res = await fetch("http://localhost:8000/api/wallet/send", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                receiver_username: recipientResult.username,
-                amount: parseFloat(amount),
-                ...(note ? { note } : {}),
-              }),
-            });
+            const res = await fetch(
+              "http://localhost:8000/api/wallet/transfer/",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  phone_number: this.state.recipientUsername,
+                  amount: parseFloat(amount),
+                  ...(note ? { note } : {}),
+                }),
+              }
+            );
 
             const data = await res.json();
 
@@ -1202,7 +1204,7 @@
               formError: "Network error — could not reach server.",
             });
           }
-        }
+        };
 
         resetForm() {
           this.setState({
@@ -1250,11 +1252,11 @@
 
               {showModal && (
                 <ConfirmModal
-                  recipient={recipientResult}
-                  amount={amount}
-                  note={note}
-                  loading={sending}
-                  onConfirm={() => this.handleConfirmSend()}
+                  recipient={this.state.recipientResult}
+                  amount={this.state.amount}
+                  note={this.state.note}
+                  loading={this.state.sending}
+                  onConfirm={this.handleConfirmSend}
                   onCancel={() => this.setState({ showModal: false })}
                 />
               )}
@@ -1421,90 +1423,21 @@
                             <form onSubmit={(e) => this.handleReview(e)}>
                               {/* RECIPIENT */}
                               <div className="field-label">
-                                Recipient username
+                                Recipient Phone Number
                               </div>
-                              <div
-                                className="input-wrap"
-                                style={{
-                                  marginBottom: lookupError ? "0.4rem" : "",
-                                }}
-                              >
-                                <span className="input-icon">@</span>
-                                <input
-                                  type="text"
-                                  placeholder="Search by username…"
-                                  value={recipientUsername}
-                                  onChange={(e) =>
-                                    this.handleRecipientChange(e.target.value)
-                                  }
-                                  className={
-                                    recipientResult
-                                      ? "ok-field"
-                                      : lookupError
-                                      ? "err-field"
-                                      : ""
-                                  }
-                                />
-                                {lookupLoading && (
-                                  <div
-                                    style={{
-                                      position: "absolute",
-                                      right: 14,
-                                      top: "50%",
-                                      transform: "translateY(-50%)",
-                                    }}
-                                  >
-                                    <div
-                                      className="spinner"
-                                      style={{ borderTopColor: "var(--blue)" }}
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                              {lookupError && (
-                                <div
-                                  style={{
-                                    fontSize: "0.78rem",
-                                    color: "var(--red)",
-                                    marginBottom: "0.75rem",
-                                  }}
-                                >
-                                  {lookupError}
-                                </div>
-                              )}
-
-                              {recipientResult && (
-                                <div
-                                  className="recipient-found"
-                                  onClick={() =>
-                                    this.setState({
-                                      recipientUsername: "",
-                                      recipientResult: null,
-                                    })
-                                  }
-                                >
-                                  <div className="r-avatar">
-                                    {recipientResult.username
-                                      .slice(0, 2)
-                                      .toUpperCase()}
-                                  </div>
-                                  <div>
-                                    <div className="r-name">
-                                      @{recipientResult.username}
-                                    </div>
-                                    <div className="r-email">
-                                      {recipientResult.email}
-                                    </div>
-                                  </div>
-                                  <span className="r-badge">✓ Verified</span>
-                                </div>
-                              )}
-
-                              {/* AMOUNT */}
+                              <span className="input-icon">@</span>
+                              <input
+                                type="text"
+                                placeholder="Phone Number…"
+                                value={recipientUsername}
+                                onChange={(e) =>
+                                  this.handleRecipientChange(e.target.value)
+                                }
+                              />
                               <div
                                 className="field-label"
                                 style={{
-                                  marginTop: recipientResult ? "0" : "0.25rem",
+                                  marginTop: "0.25rem",
                                 }}
                               >
                                 Amount
@@ -1525,12 +1458,6 @@
                                       ),
                                       formError: "",
                                     })
-                                  }
-                                  disabled={!recipientResult}
-                                  style={
-                                    !recipientResult
-                                      ? { opacity: 0.4, cursor: "not-allowed" }
-                                      : {}
                                   }
                                 />
                               </div>
@@ -1572,22 +1499,12 @@
                                 onChange={(e) =>
                                   this.setState({ note: e.target.value })
                                 }
-                                disabled={!recipientResult}
-                                style={
-                                  !recipientResult
-                                    ? { opacity: 0.4, cursor: "not-allowed" }
-                                    : {}
-                                }
                               />
 
                               <button
                                 type="submit"
                                 className="submit-btn"
-                                disabled={
-                                  !recipientResult ||
-                                  !amount ||
-                                  parsed > balance
-                                }
+                                disabled={parsed > balance}
                               >
                                 Review transfer →
                               </button>
