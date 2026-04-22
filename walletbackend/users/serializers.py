@@ -5,9 +5,12 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'email','phone_number']
 
-        
+import re
+def normalize_phone(phone):
+    return re.sub(r'\D', '', phone)
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -20,6 +23,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            phone_number=validated_data.get('phone_number')
+            phone_number=normalize_phone(validated_data.get('phone_number'))
         )
         return user
