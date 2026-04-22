@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Transactions</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --bg4: #1a2236;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --lime-bg: rgba(198, 241, 53, 0.08);
+        --green: #3ddc84;
+        --green-bg: rgba(61, 220, 132, 0.08);
+        --green-border: rgba(61, 220, 132, 0.2);
+        --red: #ff5252;
+        --red-bg: rgba(255, 82, 82, 0.08);
+        --red-border: rgba(255, 82, 82, 0.2);
+        --gold: #f0c050;
+        --gold-bg: rgba(240, 192, 80, 0.08);
+        --gold-border: rgba(240, 192, 80, 0.2);
+        --blue: #3d7fff;
+        --blue-bg: rgba(61, 127, 255, 0.1);
+        --blue-border: rgba(61, 127, 255, 0.2);
+        --purple: #a78bfa;
+        --purple-bg: rgba(167, 139, 250, 0.08);
+        --purple-border: rgba(167, 139, 250, 0.2);
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem 1.25rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+      }
+      .sidebar-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.7rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2.5rem;
+        padding-left: 0.5rem;
+        cursor: pointer;
+      }
+      .sidebar-logo span {
+        color: var(--lime);
+      }
+      .sidebar-section {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--faint);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding-left: 0.5rem;
+        margin-bottom: 0.6rem;
+        margin-top: 1.5rem;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: all 0.15s;
+        margin-bottom: 2px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: "Outfit", sans-serif;
+      }
+      .nav-item:hover {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .nav-item.active {
+        background: var(--purple-bg);
+        color: var(--purple);
+      }
+      .ni-icon {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+      .sidebar-bottom {
+        margin-top: auto;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+      }
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--lime-bg);
+        border: 1px solid rgba(198, 241, 53, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1rem;
+        color: var(--lime);
+        flex-shrink: 0;
+      }
+      .user-info {
+        min-width: 0;
+      }
+      .user-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .user-email {
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ── MAIN ── */
+      .main {
+        margin-left: 240px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        height: 68px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2.5rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(8, 12, 20, 0.85);
+        backdrop-filter: blur(14px);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .topbar-left h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.04em;
+      }
+      .topbar-left p {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: border-color 0.15s;
+      }
+
+      .content {
+        padding: 2rem 2.5rem;
+        flex: 1;
+      }
+
+      /* ── SUMMARY STRIP ── */
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .sum-card {
+        border-radius: 14px;
+        padding: 1.25rem 1.4rem;
+        border: 1px solid var(--border);
+        background: var(--bg2);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: border-color 0.2s;
+      }
+      .sum-card:hover {
+        border-color: var(--border2);
+      }
+      .sum-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+      }
+      .si-green {
+        background: var(--green-bg);
+        border: 1px solid var(--green-border);
+      }
+      .si-red {
+        background: var(--red-bg);
+        border: 1px solid var(--red-border);
+      }
+      .si-blue {
+        background: var(--blue-bg);
+        border: 1px solid var(--blue-border);
+      }
+      .si-purple {
+        background: var(--purple-bg);
+        border: 1px solid var(--purple-border);
+      }
+      .sum-val {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 0.03em;
+        line-height: 1;
+      }
+      .sum-lbl {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .c-green {
+        color: var(--green);
+      }
+      .c-red {
+        color: var(--red);
+      }
+      .c-blue {
+        color: var(--blue);
+      }
+      .c-purple {
+        color: var(--purple);
+      }
+      .c-gold {
+        color: var(--gold);
+      }
+
+      /* ── TOOLBAR ── */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 220px;
+        max-width: 340px;
+      }
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.85rem;
+        pointer-events: none;
+        color: var(--muted);
+      }
+      .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        background: var(--bg2);
+        color: var(--text);
+        border: 1px solid var(--border2);
+        border-radius: 9px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .search-input:focus {
+        border-color: var(--purple);
+      }
+      .search-input::placeholder {
+        color: var(--faint);
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 4px;
+      }
+      .f-tab {
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .f-tab:hover {
+        color: var(--text);
+      }
+      .f-tab.active {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .f-tab.active.t-all {
+        color: var(--text);
+      }
+      .f-tab.active.t-credit {
+        color: var(--green);
+        background: var(--green-bg);
+      }
+      .f-tab.active.t-debit {
+        color: var(--red);
+        background: var(--red-bg);
+      }
+      .f-tab.active.t-deposit {
+        color: var(--lime);
+        background: var(--lime-bg);
+      }
+      .f-tab.active.t-transfer {
+        color: var(--blue);
+        background: var(--blue-bg);
+      }
+
+      .sort-select {
+        padding: 10px 14px;
+        background: var(--bg2);
+        color: var(--muted);
+        border: 1px solid var(--border2);
+        border-radius: 9px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a8299'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 28px;
+        transition: border-color 0.15s;
+      }
+      .sort-select:focus {
+        border-color: var(--purple);
+        color: var(--text);
+      }
+
+      /* ── TABLE ── */
+      .txn-table-wrap {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .txn-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .txn-table thead tr {
+        border-bottom: 1px solid var(--border);
+      }
+      .txn-table th {
+        padding: 13px 20px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--faint);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+      }
+      .txn-table th:last-child {
+        text-align: right;
+      }
+
+      .txn-row {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.12s;
+        cursor: pointer;
+      }
+      .txn-row:last-child {
+        border-bottom: none;
+      }
+      .txn-row:hover {
+        background: var(--bg3);
+      }
+      .txn-row.expanded {
+        background: var(--bg3);
+      }
+      .txn-table td {
+        padding: 14px 20px;
+        font-size: 0.875rem;
+        vertical-align: middle;
+      }
+      .txn-table td:last-child {
+        text-align: right;
+      }
+
+      /* TYPE ICON */
+      .type-icon-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .type-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .ti-deposit {
+        background: var(--lime-bg);
+        border: 1px solid rgba(198, 241, 53, 0.2);
+      }
+      .ti-send {
+        background: var(--red-bg);
+        border: 1px solid var(--red-border);
+      }
+      .ti-receive {
+        background: var(--green-bg);
+        border: 1px solid var(--green-border);
+      }
+      .ti-transfer {
+        background: var(--blue-bg);
+        border: 1px solid var(--blue-border);
+      }
+      .ti-withdraw {
+        background: var(--gold-bg);
+        border: 1px solid var(--gold-border);
+      }
+
+      .txn-type-label {
+        font-weight: 500;
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .txn-party {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* STATUS PILL */
+      .status-pill {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 100px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .sp-success {
+        background: var(--green-bg);
+        color: var(--green);
+        border: 1px solid var(--green-border);
+      }
+      .sp-pending {
+        background: var(--gold-bg);
+        color: var(--gold);
+        border: 1px solid var(--gold-border);
+      }
+      .sp-failed {
+        background: var(--red-bg);
+        color: var(--red);
+        border: 1px solid var(--red-border);
+      }
+
+      /* AMOUNT CELL */
+      .amt-pos {
+        color: var(--green);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
+      }
+      .amt-neg {
+        color: var(--red);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
+      }
+      .amt-neu {
+        color: var(--muted);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
+      }
+
+      /* EXPAND ROW */
+      .expand-row td {
+        padding: 0 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .expand-inner {
+        padding: 1rem 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+      }
+      .exp-field {
+      }
+      .exp-key {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--faint);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 4px;
+      }
+      .exp-val {
+        font-size: 0.825rem;
+        color: var(--text);
+        word-break: break-all;
+      }
+
+      /* PAGINATION */
+      .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--border);
+      }
+      .page-info {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .page-btns {
+        display: flex;
+        gap: 6px;
+      }
+      .page-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: none;
+        color: var(--muted);
+        font-family: "Outfit", sans-serif;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .page-btn:hover:not(:disabled) {
+        border-color: var(--border2);
+        color: var(--text);
+      }
+      .page-btn.active {
+        background: var(--purple-bg);
+        border-color: var(--purple-border);
+        color: var(--purple);
+        font-weight: 600;
+      }
+      .page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      /* EMPTY / LOADING / ERROR */
+      .table-state {
+        padding: 4rem 1.5rem;
+        text-align: center;
+      }
+      .ts-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+      .ts-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.4rem;
+      }
+      .ts-sub {
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+
+      .spinner {
+        border-radius: 50%;
+        border: 3px solid var(--border2);
+        border-top-color: var(--purple);
+        animation: spin 0.75s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.4s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.06s;
+      }
+      .fu2 {
+        animation-delay: 0.13s;
+      }
+      .fu3 {
+        animation-delay: 0.2s;
+      }
+
+      @keyframes rowIn {
+        from {
+          opacity: 0;
+          transform: translateX(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .row-anim {
+        animation: rowIn 0.25s ease both;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      const PAGE_SIZE = 10;
+
+      /* ── helpers ── */
+      function fmt(amount) {
+        return parseFloat(amount).toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+      function fmtDate(iso) {
+        if (!iso) return "—";
+        const d = new Date(iso);
+        return d.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      }
+      function fmtTime(iso) {
+        if (!iso) return "";
+        return new Date(iso).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+      function fmtDateTime(iso) {
+        if (!iso) return "—";
+        return `${fmtDate(iso)} · ${fmtTime(iso)}`;
+      }
+
+      /* direction from the logged-in user's perspective */
+      function txnDirection(txn, userId) {
+        const type = (txn.transaction_type || "").toUpperCase();
+        if (type === "DEPOSIT") return "credit";
+        if (type === "WITHDRAWAL") return "debit";
+        // TRANSFER / SEND
+        const senderId = txn.sender?.id ?? txn.sender;
+        const receiverId = txn.receiver?.id ?? txn.receiver;
+        if (receiverId == userId) return "credit";
+        if (senderId == userId) return "debit";
+        return "neutral";
+      }
+
+      function txnMeta(txn, userId) {
+        const type = (txn.transaction_type || "").toUpperCase();
+        const dir = txnDirection(txn, userId);
+
+        const senderName =
+          txn.sender?.username ?? txn.sender_username ?? `#${txn.sender}`;
+        const receiverName =
+          txn.receiver?.username ?? txn.receiver_username ?? `#${txn.receiver}`;
+
+        let icon, iconCls, label, party, amtCls, amtPrefix;
+
+        switch (type) {
+          case "DEPOSIT":
+            icon = "📥";
+            iconCls = "ti-deposit";
+            label = "Deposit";
+            party = "To your wallet";
+            amtCls = "amt-pos";
+            amtPrefix = "+";
+            break;
+          case "WITHDRAWAL":
+            icon = "📤";
+            iconCls = "ti-withdraw";
+            label = "Withdrawal";
+            party = "From your wallet";
+            amtCls = "amt-neg";
+            amtPrefix = "-";
+            break;
+          default:
+            if (dir === "credit") {
+              icon = "⬇️";
+              iconCls = "ti-receive";
+              label = "Received";
+              party = `From @${senderName}`;
+              amtCls = "amt-pos";
+              amtPrefix = "+";
+            } else {
+              icon = "⬆️";
+              iconCls = "ti-send";
+              label = "Sent";
+              party = `To @${receiverName}`;
+              amtCls = "amt-neg";
+              amtPrefix = "-";
+            }
+        }
+        return { icon, iconCls, label, party, amtCls, amtPrefix };
+      }
+
+      function statusPillClass(status) {
+        switch ((status || "").toUpperCase()) {
+          case "SUCCESS":
+            return "sp-success";
+          case "PENDING":
+            return "sp-pending";
+          case "FAILED":
+            return "sp-failed";
+          default:
+            return "sp-pending";
+        }
+      }
+
+      /* ── SIDEBAR ── */
+      class Sidebar extends Component {
+        render() {
+          const { user } = this.props;
+          const initials = user?.username
+            ? user.username.slice(0, 2).toUpperCase()
+            : "??";
+          return (
+            <div className="sidebar">
+              <div
+                className="sidebar-logo"
+                onClick={() => (window.location.href = "index.html")}
+              >
+                Wallet<span>Wo</span>
+              </div>
+              <div className="sidebar-section">Main</div>
+              {[
+                ["🏠", "Dashboard", false, "dashboard.html"],
+                ["💳", "My Wallet", false, "dashboard.html"],
+                ["↕️", "Transactions", true, "transactions.html"],
+                ["📥", "Deposit", false, "deposit.html"],
+                ["📤", "Send Money", false, "send.html"],
+              ].map(([ic, lbl, active, href]) => (
+                <button
+                  key={lbl}
+                  className={`nav-item${active ? " active" : ""}`}
+                  onClick={() => (window.location.href = href)}
+                >
+                  <span className="ni-icon">{ic}</span>
+                  {lbl}
+                </button>
+              ))}
+              <div className="sidebar-section">Account</div>
+              {[
+                ["⚙️", "Settings"],
+                ["🔔", "Notifications"],
+                ["🛡️", "Security"],
+              ].map(([ic, lbl]) => (
+                <button key={lbl} className="nav-item">
+                  <span className="ni-icon">{ic}</span>
+                  {lbl}
+                </button>
+              ))}
+              <div className="sidebar-bottom">
+                <div className="user-chip">
+                  <div className="user-avatar">{initials}</div>
+                  <div className="user-info">
+                    <div className="user-name">{user?.username || "—"}</div>
+                    <div className="user-email">{user?.email || "—"}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      /* ── SINGLE ROW ── */
+      class TxnRow extends Component {
+        constructor(props) {
+          super(props);
+          this.state = { open: false };
+        }
+        render() {
+          const { txn, userId, idx } = this.props;
+          const { open } = this.state;
+          const { icon, iconCls, label, party, amtCls, amtPrefix } = txnMeta(
+            txn,
+            userId
+          );
+          const pillCls = statusPillClass(txn.status);
+
+          const senderName =
+            txn.sender?.username ?? txn.sender_username ?? `#${txn.sender}`;
+          const receiverName =
+            txn.receiver?.username ??
+            txn.receiver_username ??
+            `#${txn.receiver}`;
+
+          return (
+            <>
+              <tr
+                className={`txn-row row-anim${open ? " expanded" : ""}`}
+                style={{ animationDelay: `${idx * 0.04}s` }}
+                onClick={() => this.setState((s) => ({ open: !s.open }))}
+              >
+                {/* Type */}
+                <td>
+                  <div className="type-icon-cell">
+                    <div className={`type-icon ${iconCls}`}>{icon}</div>
+                    <div>
+                      <div className="txn-type-label">{label}</div>
+                      <div className="txn-party">{party}</div>
+                    </div>
+                  </div>
+                </td>
+                {/* Date */}
+                <td>
+                  <div style={{ fontSize: "0.825rem", color: "var(--text)" }}>
+                    {fmtDate(txn.created_at)}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.72rem",
+                      color: "var(--muted)",
+                      marginTop: 2,
+                    }}
+                  >
+                    {fmtTime(txn.created_at)}
+                  </div>
+                </td>
+                {/* Ref */}
+                <td
+                  style={{
+                    color: "var(--muted)",
+                    fontSize: "0.78rem",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  #{String(txn.id).padStart(6, "0")}
+                </td>
+                {/* Status */}
+                <td>
+                  <span className={`status-pill ${pillCls}`}>
+                    {txn.status || "PENDING"}
+                  </span>
+                </td>
+                {/* Amount */}
+                <td>
+                  <span className={amtCls}>
+                    {amtPrefix}${fmt(txn.amount)}
+                  </span>
+                </td>
+              </tr>
+
+              {open && (
+                <tr className="expand-row">
+                  <td colSpan={5}>
+                    <div className="expand-inner">
+                      <div className="exp-field">
+                        <div className="exp-key">Transaction ID</div>
+                        <div className="exp-val">
+                          #{String(txn.id).padStart(6, "0")}
+                        </div>
+                      </div>
+                      <div className="exp-field">
+                        <div className="exp-key">Type</div>
+                        <div className="exp-val">
+                          {txn.transaction_type || "—"}
+                        </div>
+                      </div>
+                      <div className="exp-field">
+                        <div className="exp-key">Sender</div>
+                        <div className="exp-val">@{senderName}</div>
+                      </div>
+                      <div className="exp-field">
+                        <div className="exp-key">Receiver</div>
+                        <div className="exp-val">@{receiverName}</div>
+                      </div>
+                      <div className="exp-field">
+                        <div className="exp-key">Amount</div>
+                        <div
+                          className="exp-val"
+                          style={{ color: "var(--lime)" }}
+                        >
+                          ${fmt(txn.amount)}
+                        </div>
+                      </div>
+                      <div className="exp-field">
+                        <div className="exp-key">Status</div>
+                        <div className="exp-val">
+                          <span className={`status-pill ${pillCls}`}>
+                            {txn.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="exp-field">
+                        <div className="exp-key">Date &amp; Time</div>
+                        <div className="exp-val">
+                          {fmtDateTime(txn.created_at)}
+                        </div>
+                      </div>
+                      {txn.note && (
+                        <div className="exp-field">
+                          <div className="exp-key">Note</div>
+                          <div
+                            className="exp-val"
+                            style={{
+                              color: "var(--muted)",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            "{txn.note}"
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </>
+          );
+        }
+      }
+
+      /* ── MAIN PAGE ── */
+      class TransactionsPage extends Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            user: null,
+            transactions: [],
+            loading: true,
+            error: null,
+            filter: "ALL", // ALL | CREDIT | DEBIT | DEPOSIT | TRANSFER
+            search: "",
+            sort: "newest",
+            page: 1,
+          };
+        }
+
+        getToken() {
+          return (
+            localStorage.getItem("access") ||
+            localStorage.getItem("access_token") ||
+            sessionStorage.getItem("access") ||
+            sessionStorage.getItem("access_token") ||
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2Nzc4MTQzLCJpYXQiOjE3NzY3Nzc4NDMsImp0aSI6IjU0NDQxMzY3ODhiYzQyNTA5OWJkNjhiYzdkOGQ4YjNhIiwidXNlcl9pZCI6IjEifQ.mgN9OPyaV-27436qoOT9eDxcuLXYkOaDHcrh-CaNyeE"
+          );
+        }
+
+        async componentDidMount() {
+          const token = this.getToken();
+          try {
+            const [userRes, txnRes] = await Promise.all([
+              fetch("http://localhost:8000/api/users/me", {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              fetch("http://localhost:8000/api/wallet/transactions", {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+            if (!userRes.ok) throw new Error(`Auth failed (${userRes.status})`);
+            if (!txnRes.ok)
+              throw new Error(`Transactions fetch failed (${txnRes.status})`);
+
+            const user = await userRes.json();
+            const transactions = await txnRes.json();
+
+            this.setState({
+              user,
+              transactions: Array.isArray(transactions) ? transactions : [],
+              loading: false,
+            });
+          } catch (err) {
+            this.setState({ loading: false, error: err.message });
+          }
+        }
+
+        /* ── derived data ── */
+        getFiltered() {
+          const { transactions, filter, search, sort, user } = this.state;
+          const uid = user?.id;
+
+          let list = [...transactions];
+
+          // Filter by type/direction
+          if (filter !== "ALL") {
+            list = list.filter((t) => {
+              const type = (t.transaction_type || "").toUpperCase();
+              const dir = txnDirection(t, uid);
+              if (filter === "CREDIT") return dir === "credit";
+              if (filter === "DEBIT") return dir === "debit";
+              if (filter === "DEPOSIT") return type === "DEPOSIT";
+              if (filter === "TRANSFER")
+                return type !== "DEPOSIT" && type !== "WITHDRAWAL";
+              return true;
+            });
+          }
+
+          // Search by username, id, amount
+          if (search.trim()) {
+            const q = search.toLowerCase();
+            list = list.filter((t) => {
+              const sname = (
+                t.sender?.username ??
+                t.sender_username ??
+                ""
+              ).toLowerCase();
+              const rname = (
+                t.receiver?.username ??
+                t.receiver_username ??
+                ""
+              ).toLowerCase();
+              const id = String(t.id);
+              const amt = String(t.amount);
+              return (
+                sname.includes(q) ||
+                rname.includes(q) ||
+                id.includes(q) ||
+                amt.includes(q)
+              );
+            });
+          }
+
+          // Sort
+          list.sort((a, b) => {
+            if (sort === "newest")
+              return new Date(b.created_at) - new Date(a.created_at);
+            if (sort === "oldest")
+              return new Date(a.created_at) - new Date(b.created_at);
+            if (sort === "highest")
+              return parseFloat(b.amount) - parseFloat(a.amount);
+            if (sort === "lowest")
+              return parseFloat(a.amount) - parseFloat(b.amount);
+            return 0;
+          });
+
+          return list;
+        }
+
+        getSummary() {
+          const { transactions, user } = this.state;
+          const uid = user?.id;
+          let totalIn = 0,
+            totalOut = 0,
+            deposits = 0;
+          transactions.forEach((t) => {
+            const dir = txnDirection(t, uid);
+            const type = (t.transaction_type || "").toUpperCase();
+            const amt = parseFloat(t.amount) || 0;
+            if (type === "DEPOSIT") deposits++;
+            if (dir === "credit") totalIn += amt;
+            if (dir === "debit") totalOut += amt;
+          });
+          return { totalIn, totalOut, deposits, count: transactions.length };
+        }
+
+        render() {
+          const { user, loading, error, filter, search, sort, page } =
+            this.state;
+
+          if (loading)
+            return (
+              <div style={{ display: "flex", width: "100%" }}>
+                <Sidebar user={null} />
+                <div
+                  className="main"
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    display: "flex",
+                  }}
+                >
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      className="spinner"
+                      style={{ width: 44, height: 44, margin: "0 auto 1rem" }}
+                    />
+                    <div style={{ color: "var(--muted)", fontSize: "0.9rem" }}>
+                      Loading transactions…
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+
+          if (error)
+            return (
+              <div style={{ display: "flex", width: "100%" }}>
+                <Sidebar user={user} />
+                <div className="main">
+                  <div className="topbar">
+                    <div className="topbar-left">
+                      <h1>Transactions</h1>
+                    </div>
+                  </div>
+                  <div
+                    className="content"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "70vh",
+                    }}
+                  >
+                    <div className="table-state">
+                      <div className="ts-icon">⚠️</div>
+                      <div className="ts-title">Failed to load</div>
+                      <div
+                        className="ts-sub"
+                        style={{ marginBottom: "1.25rem" }}
+                      >
+                        {error}
+                      </div>
+                      <button
+                        style={{
+                          background: "var(--purple)",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 9,
+                          padding: "10px 22px",
+                          fontFamily: "Outfit",
+                          fontSize: "0.875rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          this.setState({ loading: true, error: null });
+                          this.componentDidMount();
+                        }}
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+
+          const filtered = this.getFiltered();
+          const totalPages = Math.max(
+            1,
+            Math.ceil(filtered.length / PAGE_SIZE)
+          );
+          const currentPage = Math.min(page, totalPages);
+          const paged = filtered.slice(
+            (currentPage - 1) * PAGE_SIZE,
+            currentPage * PAGE_SIZE
+          );
+          const { totalIn, totalOut, deposits, count } = this.getSummary();
+
+          const FILTERS = [
+            ["ALL", "All", "t-all"],
+            ["CREDIT", "Money In", "t-credit"],
+            ["DEBIT", "Money Out", "t-debit"],
+            ["DEPOSIT", "Deposits", "t-deposit"],
+            ["TRANSFER", "Transfers", "t-transfer"],
+          ];
+
+          return (
+            <div style={{ display: "flex", width: "100%" }}>
+              <Sidebar user={user} />
+
+              <div className="main">
+                {/* TOPBAR */}
+                <div className="topbar">
+                  <div className="topbar-left">
+                    <h1>Transactions</h1>
+                    <p>{count} total transactions in your account</p>
+                  </div>
+                  <div className="topbar-right">
+                    <div className="icon-btn">🔔</div>
+                    <div
+                      style={{
+                        background: "var(--red-bg)",
+                        border: "1px solid var(--red-border)",
+                        fontSize: "0.75rem",
+                        fontFamily: "'Outfit',sans-serif",
+                        padding: "0 14px",
+                        height: 38,
+                        display: "flex",
+                        alignItems: "center",
+                        color: "var(--red)",
+                        fontWeight: 600,
+                        borderRadius: 9,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = "login.html";
+                      }}
+                    >
+                      Sign out
+                    </div>
+                  </div>
+                </div>
+
+                <div className="content">
+                  {/* SUMMARY STRIP */}
+                  <div className="summary-strip fu">
+                    {[
+                      {
+                        icon: "⬆️",
+                        cls: "si-red",
+                        valCls: "c-red",
+                        val: `$${fmt(totalOut)}`,
+                      },
+                      {
+                        icon: "📥",
+                        cls: "si-blue",
+                        valCls: "c-blue",
+                        val: deposits,
+                        lbl: "Deposits Made",
+                      },
+                      {
+                        icon: "↕️",
+                        cls: "si-purple",
+                        valCls: "c-purple",
+                        val: count,
+                        lbl: "All Transactions",
+                      },
+                    ].map(({ icon, cls, valCls, val, lbl }) => (
+                      <div className="sum-card" key={lbl}>
+                        <div className={`sum-icon ${cls}`}>{icon}</div>
+                        <div>
+                          <div className={`sum-val ${valCls}`}>{val}</div>
+                          <div className="sum-lbl">{lbl}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* TOOLBAR */}
+                  <div className="toolbar fu fu1">
+                    {/* Search */}
+                    <div className="search-wrap">
+                      <span className="search-icon">🔍</span>
+                      <input
+                        className="search-input"
+                        type="text"
+                        placeholder="Search by user, amount, ID…"
+                        value={search}
+                        onChange={(e) =>
+                          this.setState({ search: e.target.value, page: 1 })
+                        }
+                      />
+                    </div>
+
+                    {/* Filter tabs */}
+                    <div className="filter-tabs">
+                      {FILTERS.map(([val, lbl, cls]) => (
+                        <button
+                          key={val}
+                          className={`f-tab${
+                            filter === val ? ` active ${cls}` : ""
+                          }`}
+                          onClick={() =>
+                            this.setState({ filter: val, page: 1 })
+                          }
+                        >
+                          {lbl}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Sort */}
+                    <select
+                      className="sort-select"
+                      value={sort}
+                      onChange={(e) =>
+                        this.setState({ sort: e.target.value, page: 1 })
+                      }
+                    >
+                      <option value="newest">Newest first</option>
+                      <option value="oldest">Oldest first</option>
+                      <option value="highest">Highest amount</option>
+                      <option value="lowest">Lowest amount</option>
+                    </select>
+                  </div>
+
+                  {/* TABLE */}
+                  <div className="txn-table-wrap fu fu2">
+                    {paged.length === 0 ? (
+                      <div className="table-state">
+                        <div className="ts-icon">
+                          {search || filter !== "ALL" ? "🔍" : "📭"}
+                        </div>
+                        <div className="ts-title">
+                          {search || filter !== "ALL"
+                            ? "No results found"
+                            : "No transactions yet"}
+                        </div>
+                        <div className="ts-sub">
+                          {search || filter !== "ALL"
+                            ? "Try adjusting your search or filter."
+                            : "Your transactions will appear here once you deposit or send money."}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <table className="txn-table">
+                          <thead>
+                            <tr>
+                              <th>Transaction</th>
+                              <th>Date</th>
+                              <th>Reference</th>
+                              <th>Status</th>
+                              <th>Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {paged.map((txn, i) => (
+                              <TxnRow
+                                key={txn.id ?? i}
+                                txn={txn}
+                                userId={user?.id}
+                                idx={i}
+                              />
+                            ))}
+                          </tbody>
+                        </table>
+
+                        {/* PAGINATION */}
+                        <div className="pagination">
+                          <div className="page-info">
+                            Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                            {Math.min(currentPage * PAGE_SIZE, filtered.length)}{" "}
+                            of {filtered.length}
+                          </div>
+                          <div className="page-btns">
+                            <button
+                              className="page-btn"
+                              disabled={currentPage === 1}
+                              onClick={() =>
+                                this.setState({ page: currentPage - 1 })
+                              }
+                            >
+                              ‹
+                            </button>
+                            {Array.from(
+                              { length: Math.min(totalPages, 5) },
+                              (_, i) => {
+                                let p;
+                                if (totalPages <= 5) p = i + 1;
+                                else if (currentPage <= 3) p = i + 1;
+                                else if (currentPage >= totalPages - 2)
+                                  p = totalPages - 4 + i;
+                                else p = currentPage - 2 + i;
+                                return (
+                                  <button
+                                    key={p}
+                                    className={`page-btn${
+                                      currentPage === p ? " active" : ""
+                                    }`}
+                                    onClick={() => this.setState({ page: p })}
+                                  >
+                                    {p}
+                                  </button>
+                                );
+                              }
+                            )}
+                            <button
+                              className="page-btn"
+                              disabled={currentPage === totalPages}
+                              onClick={() =>
+                                this.setState({ page: currentPage + 1 })
+                              }
+                            >
+                              ›
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(
+        <TransactionsPage />
+      );
+    </script>
+  </body>
+</html>
