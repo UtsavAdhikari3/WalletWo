@@ -831,11 +831,11 @@
               </div>
               <div className="sidebar-section">Main</div>
               {[
-                ["🏠", "Dashboard", false, "dashboard.html"],
-                ["💳", "My Wallet", false, "dashboard.html"],
+                ["🏠", "Dashboard", false, "../Dashboard/dashboard.html"],
+                ["💳", "My Wallet", false, "../Dashboarddashboard.html"],
                 ["↕️", "Transactions", true, "transactions.html"],
-                ["📥", "Deposit", false, "deposit.html"],
-                ["📤", "Send Money", false, "send.html"],
+                ["📥", "Deposit", false, "../Deposit/deposit.html"],
+                ["📤", "Send Money", false, "../Transfer/transfer.html"],
               ].map(([ic, lbl, active, href]) => (
                 <button
                   key={lbl}

@@ -673,22 +673,6 @@
       const { Component } = React;
 
       const QUICK_AMOUNTS = [10, 50, 100, 500];
-      const METHODS = [
-        {
-          id: "bank",
-          icon: "🏦",
-          name: "Bank Transfer",
-          desc: "ACH · 1-3 days",
-        },
-        { id: "card", icon: "💳", name: "Debit Card", desc: "Instant" },
-        { id: "crypto", icon: "₿", name: "Crypto", desc: "BTC / ETH" },
-        {
-          id: "mobile",
-          icon: "📱",
-          name: "Mobile Money",
-          desc: "eSewa · Khalti",
-        },
-      ];
 
       //   class Sidebar extends Component {
       //     render() {
@@ -759,7 +743,6 @@
             wallet: null,
             amount: "",
             selectedQuick: null,
-            method: "card",
             loading: false,
             pageLoading: true,
             success: false,
@@ -898,7 +881,6 @@
             wallet,
             amount,
             selectedQuick,
-            method,
             loading,
             pageLoading,
             success,
@@ -1089,34 +1071,6 @@
                                 ))}
                               </div>
 
-                              {/* METHOD */}
-                              <div className="method-label">Payment method</div>
-                              <div className="method-grid">
-                                {METHODS.map((m) => (
-                                  <div
-                                    key={m.id}
-                                    className={`method-card${
-                                      method === m.id ? " selected" : ""
-                                    }`}
-                                    onClick={() =>
-                                      this.setState({ method: m.id })
-                                    }
-                                  >
-                                    <span className="method-icon">
-                                      {m.icon}
-                                    </span>
-                                    <div>
-                                      <div className="method-name">
-                                        {m.name}
-                                      </div>
-                                      <div className="method-desc">
-                                        {m.desc}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-
                               <button
                                 type="submit"
                                 className="submit-btn"
@@ -1188,18 +1142,7 @@
                               parsed > 0,
                             ],
                             ["Processing fee", "FREE", false],
-                            [
-                              "Method",
-                              METHODS.find((m) => m.id === method)?.name ?? "—",
-                              false,
-                            ],
-                            [
-                              "Settlement",
-                              method === "card"
-                                ? "Instant"
-                                : "1-3 business days",
-                              false,
-                            ],
+
                             [
                               "New balance",
                               parsed > 0
@@ -1217,30 +1160,6 @@
                               >
                                 {v}
                               </span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Recent deposits placeholder */}
-                        <div
-                          className="panel-title fu3"
-                          style={{ marginTop: "1.25rem" }}
-                        >
-                          Recent Deposits
-                        </div>
-                        <div className="history-card fu3">
-                          {[
-                            ["$250.00", "2 days ago"],
-                            ["$100.00", "5 days ago"],
-                            ["$50.00", "1 week ago"],
-                          ].map(([amt, when]) => (
-                            <div className="hist-item" key={when}>
-                              <div className="hist-icon">📥</div>
-                              <div className="hist-info">
-                                <div className="hist-name">Wallet Deposit</div>
-                                <div className="hist-date">{when}</div>
-                              </div>
-                              <div className="hist-amt">{amt}</div>
                             </div>
                           ))}
                         </div>
