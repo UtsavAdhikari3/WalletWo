@@ -445,6 +445,15 @@
             error: "",
             success: false,
           };
+          const params = new URLSearchParams(window.location.search);
+
+          const reference_id = params.get("ref");
+          const amount = params.get("amount");
+
+          this.paymentData = {
+            reference_id,
+            amount,
+          };
         }
 
         async handleSubmit(e) {
@@ -488,8 +497,60 @@
 
             this.setState({ success: true, error: "" });
 
-            setTimeout(() => {
-              window.location.href = "../Dashboard/dashboard.html";
+            setTimeout(async () => {
+              // 🔥 Check if this login came from a payment
+              if (this.paymentData.reference_id && this.paymentData.amount) {
+                try {
+                  const walletToken = data.access;
+
+                  // 1. Call wallet transfer
+                  const transferRes = await fetch(
+                    "http://localhost:8000/api/wallet/transfer/",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${walletToken}`,
+                      },
+                      body: JSON.stringify({
+                        amount: this.paymentData.amount,
+                        reference_id: this.paymentData.reference_id,
+                      }),
+                    }
+                  );
+
+                  const transferData = await transferRes.json();
+
+                  if (!transferRes.ok) {
+                    this.setState({
+                      error: transferData.error || "Payment failed",
+                    });
+                    return;
+                  }
+                  await fetch(
+                    "http://localhost:8001/api/payment/confirm_payment/",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        reference_id: this.paymentData.reference_id,
+                        success: true,
+                        transaction_id:
+                          transferData.transaction_id || "txn_demo",
+                      }),
+                    }
+                  );
+
+                  window.close();
+                } catch (err) {
+                  this.setState({ error: "Payment processing failed" });
+                }
+              } else {
+                // Normal login
+                window.location.href = "../Dashboard/dashboard.html";
+              }
             }, 1000);
           } catch (err) {
             this.setState({
