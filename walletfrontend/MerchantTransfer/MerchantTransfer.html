@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletWo — Pay Merchant</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080c14;
+        --bg2: #0e1420;
+        --bg3: #141b2b;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.12);
+        --text: #f0f2f7;
+        --muted: #7a8299;
+        --faint: #3a4155;
+        --lime: #c6f135;
+        --lime-dark: #96bc1a;
+        --red: #f44;
+        --green: #3ddc84;
+        --amber: #f5a623;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* NAV */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 3rem;
+        height: 68px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+      }
+      .logo span {
+        color: var(--lime);
+      }
+      .nav-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(245, 166, 35, 0.08);
+        border: 1px solid rgba(245, 166, 35, 0.2);
+        border-radius: 100px;
+        padding: 6px 14px;
+        font-size: 0.78rem;
+        color: var(--amber);
+      }
+      .nav-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--amber);
+        animation: pulse 1.8s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* LAYOUT */
+      .page {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        flex: 1;
+      }
+
+      /* LEFT */
+      .left {
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        padding: 4rem 3.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .left-glow {
+        position: absolute;
+        top: -80px;
+        left: -80px;
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(198, 241, 53, 0.05) 0%,
+          transparent 65%
+        );
+        pointer-events: none;
+      }
+      .left-glow2 {
+        position: absolute;
+        bottom: -60px;
+        right: -60px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(245, 166, 35, 0.04) 0%,
+          transparent 65%
+        );
+        pointer-events: none;
+      }
+
+      .merchant-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(245, 166, 35, 0.3);
+        border-radius: 100px;
+        padding: 6px 14px;
+        font-size: 0.78rem;
+        color: var(--amber);
+        margin-bottom: 1.5rem;
+        width: fit-content;
+        position: relative;
+      }
+
+      .left-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.2rem;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      .left-title .accent {
+        color: var(--lime);
+      }
+      .left-desc {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.75;
+        max-width: 340px;
+        margin-bottom: 2.5rem;
+        position: relative;
+      }
+
+      /* PAYMENT CARD */
+      .payment-card {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .payment-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--amber), var(--lime));
+      }
+      .pc-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+      }
+      .pc-label {
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .pc-merchant-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .pc-merchant-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(198, 241, 53, 0.1);
+        border: 1px solid rgba(198, 241, 53, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+      }
+      .pc-amount-block {
+        margin: 1.25rem 0;
+        text-align: center;
+        padding: 1rem 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .pc-amount-label {
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.4rem;
+      }
+      .pc-amount {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3rem;
+        letter-spacing: 0.04em;
+        color: var(--text);
+      }
+      .pc-amount .currency {
+        font-size: 1.6rem;
+        color: var(--muted);
+        vertical-align: super;
+      }
+      .pc-ref-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        margin-top: 1rem;
+      }
+      .pc-ref-key {
+        color: var(--muted);
+      }
+      .pc-ref-val {
+        font-family: monospace;
+        font-size: 0.78rem;
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        padding: 3px 10px;
+        color: var(--lime);
+        letter-spacing: 0.05em;
+      }
+
+      /* SECURITY BADGES */
+      .security-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 1.25rem;
+      }
+      .sec-badge {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        background: rgba(61, 220, 132, 0.05);
+        border: 1px solid rgba(61, 220, 132, 0.12);
+        border-radius: 8px;
+        padding: 7px;
+        font-size: 0.7rem;
+        color: rgba(61, 220, 132, 0.7);
+      }
+
+      /* RIGHT */
+      .right {
+        padding: 3.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+      }
+      .form-wrap {
+        width: 100%;
+        max-width: 380px;
+      }
+
+      .form-heading {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.4rem;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.4rem;
+      }
+      .form-sub {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+
+      /* AMOUNT SUMMARY BAR */
+      .amount-bar {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .amount-bar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--amber), transparent);
+      }
+      .ab-left .ab-label {
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 4px;
+      }
+      .ab-left .ab-merchant {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .ab-amount {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.9rem;
+        letter-spacing: 0.04em;
+        color: var(--lime);
+      }
+
+      .field {
+        margin-bottom: 1.15rem;
+      }
+      .field-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .field label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .input-wrap {
+        position: relative;
+      }
+      .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        pointer-events: none;
+      }
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 12px 14px 12px 40px;
+        background: var(--bg2);
+        color: var(--text);
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: var(--lime);
+        box-shadow: 0 0 0 3px rgba(198, 241, 53, 0.08);
+      }
+      input::placeholder {
+        color: var(--faint);
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--lime);
+        color: #080c14;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition: all 0.15s;
+        letter-spacing: 0.01em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .submit-btn:hover:not(:disabled) {
+        background: var(--lime-dark);
+        transform: translateY(-1px);
+      }
+      .submit-btn:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+      .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .error-box {
+        background: rgba(255, 68, 68, 0.08);
+        border: 1px solid rgba(255, 68, 68, 0.25);
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        color: var(--red);
+        margin-bottom: 1.25rem;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .success-box {
+        background: rgba(61, 220, 132, 0.08);
+        border: 1px solid rgba(61, 220, 132, 0.25);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+      }
+      .success-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .success-box h3 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 0.04em;
+        color: var(--green);
+        margin-bottom: 0.4rem;
+      }
+      .success-box p {
+        font-size: 0.875rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .success-txn {
+        margin-top: 1rem;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.78rem;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+      }
+      .success-txn span:last-child {
+        font-family: monospace;
+        color: var(--lime);
+      }
+
+      .cancel-link {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.82rem;
+        color: var(--muted);
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-family: "Outfit", sans-serif;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .cancel-link:hover {
+        color: var(--red);
+      }
+
+      /* Loading spinner */
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid rgba(8, 12, 20, 0.3);
+        border-top-color: #080c14;
+        animation: spin 0.7s linear infinite;
+      }
+
+      /* missing params warning */
+      .warn-box {
+        background: rgba(245, 166, 35, 0.08);
+        border: 1px solid rgba(245, 166, 35, 0.25);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        color: var(--amber);
+        line-height: 1.65;
+      }
+      .warn-box strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.92rem;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fu {
+        animation: fadeUp 0.45s ease both;
+      }
+      .fu1 {
+        animation-delay: 0.08s;
+      }
+      .fu2 {
+        animation-delay: 0.16s;
+      }
+      .fu3 {
+        animation-delay: 0.24s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { Component } = React;
+
+      function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          ref: params.get("ref") || "",
+          amount: params.get("amount") || "",
+        };
+      }
+
+      class MerchantTransfer extends Component {
+        constructor(props) {
+          super(props);
+          const { ref, amount } = getQueryParams();
+          this.state = {
+            username: "",
+            password: "",
+            referenceId: ref,
+            amount: amount,
+            error: "",
+            success: false,
+            transactionId: null,
+            loading: false,
+          };
+          this.handleSubmit = this.handleSubmit.bind(this);
+        }
+
+        handleSubmit(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this._doSubmit();
+        }
+
+        async _doSubmit() {
+          const { username, password, referenceId, amount } = this.state;
+
+          if (!username.trim()) {
+            this.setState({ error: "Please enter your username." });
+            return;
+          }
+          if (!password) {
+            this.setState({ error: "Please enter your password." });
+            return;
+          }
+          if (!referenceId) {
+            this.setState({
+              error:
+                "No reference ID found. Please return to the merchant site.",
+            });
+            return;
+          }
+          if (!amount) {
+            this.setState({
+              error: "No amount found. Please return to the merchant site.",
+            });
+            return;
+          }
+
+          this.setState({ loading: true, error: "" });
+
+          try {
+            // Step 1: Log in to get tokens
+            const loginRes = await fetch(
+              "http://localhost:8000/api/users/login/",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+              }
+            );
+            const loginData = await loginRes.json();
+            if (!loginRes.ok) {
+              this.setState({
+                error: loginData.detail || "Invalid credentials.",
+                loading: false,
+              });
+              return;
+            }
+
+            const accessToken = loginData.access;
+
+            // Step 2: Perform merchant transfer
+            const transferRes = await fetch(
+              "http://localhost:8000/api/wallet/transfer_merchant/",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                  amount: amount,
+                  reference_id: referenceId,
+                }),
+              }
+            );
+            const transferData = await transferRes.json();
+
+            if (!transferRes.ok) {
+              this.setState({
+                error: transferData.error || "Payment failed.",
+                loading: false,
+              });
+              return;
+            }
+
+            this.setState({
+              success: true,
+              transactionId: transferData.transaction_id,
+              loading: false,
+              error: "",
+            });
+          } catch (err) {
+            this.setState({
+              error: "Server error. Please try again.",
+              loading: false,
+            });
+          }
+        }
+
+        render() {
+          const {
+            username,
+            password,
+            referenceId,
+            amount,
+            error,
+            success,
+            transactionId,
+            loading,
+          } = this.state;
+          const set = (f) => (e) =>
+            this.setState({ [f]: e.target.value, error: "" });
+
+          const missingParams = !referenceId || !amount;
+          const displayAmount = amount ? parseFloat(amount).toFixed(2) : "0.00";
+          const [amountInt, amountDec] = displayAmount.split(".");
+
+          return (
+            <>
+              <nav>
+                <div
+                  className="logo"
+                  onClick={() => (window.location.href = "../index.html")}
+                >
+                  Wallet<span>Wo</span>
+                </div>
+                <div className="nav-badge">Merchant Checkout</div>
+              </nav>
+
+              <div className="page">
+                {/* LEFT */}
+                <div className="left">
+                  <div className="left-glow" />
+                  <div className="left-glow2" />
+
+                  <div className="merchant-tag">🛒 Merchant Payment</div>
+
+                  <h2 className="left-title">
+                    SECURE
+                    <br />
+                    <span className="accent">PAYMENT</span>
+                    <br />
+                    PORTAL
+                  </h2>
+                  <p className="left-desc">
+                    Authorise this payment by signing in with your WalletWo
+                    credentials. Your funds are transferred instantly and
+                    securely.
+                  </p>
+
+                  {/* Payment detail card */}
+                  <div className="payment-card">
+                    <div className="pc-row">
+                      <div>
+                        <div className="pc-label">Paying to</div>
+                        <div
+                          className="pc-merchant-name"
+                          style={{ marginTop: "5px" }}
+                        >
+                          <div className="pc-merchant-icon">🏪</div>
+                          ecom_system
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div className="pc-label">Status</div>
+                        <div
+                          style={{
+                            marginTop: "5px",
+                            fontSize: "0.8rem",
+                            color: "var(--amber)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          ⏳ Pending auth
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pc-amount-block">
+                      <div className="pc-amount-label">Amount due</div>
+                      <div className="pc-amount">
+                        <span className="currency">$</span>
+                        {amountInt}
+                        <span
+                          style={{ fontSize: "1.6rem", color: "var(--muted)" }}
+                        >
+                          .{amountDec || "00"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="pc-ref-row">
+                      <span className="pc-ref-key">Reference ID</span>
+                      <span className="pc-ref-val">{referenceId || "—"}</span>
+                    </div>
+
+                    <div className="security-row">
+                      <div className="sec-badge">🔒 Encrypted</div>
+                      <div className="sec-badge">⚡ Instant</div>
+                      <div className="sec-badge">🛡 Idempotent</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT */}
+                <div className="right">
+                  <div className="form-wrap fu">
+                    {success ? (
+                      <div className="success-box fu">
+                        <div className="success-icon">✅</div>
+                        <h3>Payment Complete!</h3>
+                        <p>
+                          Your payment of{" "}
+                          <strong style={{ color: "var(--green)" }}>
+                            $<span>{displayAmount}</span>
+                          </strong>{" "}
+                          has been successfully sent to the merchant.
+                        </p>
+                        {transactionId && (
+                          <div className="success-txn">
+                            <span>Transaction ID</span>
+                            <span>#{transactionId}</span>
+                          </div>
+                        )}
+                        <p style={{ marginTop: "1rem", fontSize: "0.8rem" }}>
+                          You may now close this window or return to the
+                          merchant site.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <h1 className="form-heading fu">Authorise Payment</h1>
+                        <p className="form-sub fu fu1">
+                          Sign in with your WalletWo account to complete this
+                          transaction.
+                        </p>
+
+                        {/* Amount summary */}
+                        <div className="amount-bar fu fu1">
+                          <div className="ab-left">
+                            <div className="ab-label">You're paying</div>
+                            <div className="ab-merchant">ecom_system</div>
+                          </div>
+                          <div className="ab-amount">${displayAmount}</div>
+                        </div>
+
+                        {missingParams && (
+                          <div className="warn-box fu fu2">
+                            <strong>⚠ Missing payment details</strong>
+                            This page requires a <code>ref</code> and{" "}
+                            <code>amount</code> in the URL. Please return to the
+                            merchant site and try again.
+                          </div>
+                        )}
+
+                        {error && <div className="error-box fu">⚠ {error}</div>}
+
+                        <form onSubmit={this.handleSubmit}>
+                          <div className="field fu fu1">
+                            <label>Username</label>
+                            <div className="input-wrap">
+                              <span className="input-icon">@</span>
+                              <input
+                                type="text"
+                                placeholder="yourhandle"
+                                value={username}
+                                onChange={set("username")}
+                                autoComplete="username"
+                                disabled={loading}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="field fu fu2">
+                            <label>Password</label>
+                            <div className="input-wrap">
+                              <span className="input-icon">🔑</span>
+                              <input
+                                type="password"
+                                placeholder="Your password"
+                                value={password}
+                                onChange={set("password")}
+                                autoComplete="current-password"
+                                disabled={loading}
+                              />
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: "1.25rem" }} />
+
+                          <button
+                            type="submit"
+                            className="submit-btn fu fu3"
+                            disabled={loading || missingParams}
+                          >
+                            {loading ? (
+                              <>
+                                <div className="spinner" /> Processing…
+                              </>
+                            ) : (
+                              <>Pay ${displayAmount} →</>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="cancel-link"
+                            onClick={() => window.history.back()}
+                          >
+                            ✕ Cancel and go back
+                          </button>
+                        </form>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+        }
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(
+        <MerchantTransfer />
+      );
+    </script>
+  </body>
+</html>
