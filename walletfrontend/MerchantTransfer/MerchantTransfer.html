@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="../Config/config.js"></script>
     <style>
       *,
       *::before,
@@ -630,14 +631,11 @@
 
           try {
             // Step 1: Log in to get tokens
-            const loginRes = await fetch(
-              "http://localhost:8000/api/users/login/",
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
-              }
-            );
+            const loginRes = await fetch(API.LOGIN, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
             const loginData = await loginRes.json();
             if (!loginRes.ok) {
               this.setState({
@@ -650,20 +648,17 @@
             const accessToken = loginData.access;
 
             // Step 2: Perform merchant transfer
-            const transferRes = await fetch(
-              "http://localhost:8000/api/wallet/transfer_merchant/",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                  amount: amount,
-                  reference_id: referenceId,
-                }),
-              }
-            );
+            const transferRes = await fetch(API.TRANSFER_MERCHANT, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({
+                amount: amount,
+                reference_id: referenceId,
+              }),
+            });
             const transferData = await transferRes.json();
 
             if (!transferRes.ok) {

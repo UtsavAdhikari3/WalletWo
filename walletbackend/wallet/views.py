@@ -90,9 +90,6 @@ class TransferAPIView(APIView):
             if not amount:
                 return Response({"error": "amount is required"}, status=400)
 
-            if not idempotency_key:
-                return Response({"error": "idempotency_key is required"}, status=400)
-
             phone_number = normalize_phone(phone_number)
 
             receiver = User.objects.get(phone_number=phone_number)

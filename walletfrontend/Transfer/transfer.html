@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="../Config/config.js"></script>
     <style>
       *,
       *::before,
@@ -1050,10 +1051,10 @@
           const token = this.getToken();
           try {
             const [userRes, walletRes] = await Promise.all([
-              fetch("http://localhost:8000/api/users/me", {
+              fetch(API.ME, {
                 headers: { Authorization: `Bearer ${token}` },
               }),
-              fetch("http://localhost:8000/api/wallet", {
+              fetch(API.WALLET, {
                 headers: { Authorization: `Bearer ${token}` },
               }),
             ]);
@@ -1101,19 +1102,16 @@
           this.setState({ loadingRecipient: true, formError: "" });
 
           try {
-            const res = await fetch(
-              "http://localhost:8000/api/wallet/receiver/",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  phone_number: recipientUsername,
-                }),
-              }
-            );
+            const res = await fetch(API.RECEIVER, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                phone_number: recipientUsername,
+              }),
+            });
 
             const data = await res.json();
 
@@ -1144,21 +1142,18 @@
           const token = this.getToken();
 
           try {
-            const res = await fetch(
-              "http://localhost:8000/api/wallet/transfer/",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  phone_number: this.state.recipientUsername,
-                  amount: parseFloat(amount),
-                  ...(note ? { note } : {}),
-                }),
-              }
-            );
+            const res = await fetch(API.TRANSFER, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                phone_number: this.state.recipientUsername,
+                amount: parseFloat(amount),
+                ...(note ? { note } : {}),
+              }),
+            });
 
             const data = await res.json();
 

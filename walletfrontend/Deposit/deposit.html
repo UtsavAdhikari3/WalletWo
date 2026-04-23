@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel" src="../Components/sidebar.js"></script>
+    <script src="../Config/config.js"></script>
     <style>
       *,
       *::before,
@@ -766,10 +767,10 @@
           const token = this.getToken();
           try {
             const [userRes, walletRes] = await Promise.all([
-              fetch("http://localhost:8000/api/users/me", {
+              fetch(API.ME, {
                 headers: { Authorization: `Bearer ${token}` },
               }),
-              fetch("http://localhost:8000/api/wallet", {
+              fetch(API.WALLET, {
                 headers: { Authorization: `Bearer ${token}` },
               }),
             ]);
@@ -819,17 +820,14 @@
           const token = this.getToken();
 
           try {
-            const res = await fetch(
-              "http://localhost:8000/api/wallet/deposit/",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ amount: parsed }),
-              }
-            );
+            const res = await fetch(API.DEPOSIT, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ amount: parsed }),
+            });
 
             const data = await res.json();
 

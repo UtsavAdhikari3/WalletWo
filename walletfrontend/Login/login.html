@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="../Config/config.js"></script>
     <style>
       *,
       *::before,
@@ -463,7 +464,7 @@
           }
 
           try {
-            const res = await fetch("http://localhost:8000/api/users/login/", {
+            const res = await fetch(API.LOGIN, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

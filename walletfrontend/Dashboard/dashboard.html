@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel" src="../Components/sidebar.js"></script>
+    <script src="../Config/config.js"></script>
     <style>
       *,
       *::before,
@@ -876,8 +877,7 @@
           }
 
           try {
-            // 1️⃣ Fetch current user
-            const userRes = await fetch("http://localhost:8000/api/users/me", {
+            const userRes = await fetch(API.ME, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
@@ -889,8 +889,7 @@
               );
             const user = await userRes.json();
 
-            // 2️⃣ Fetch wallet
-            const walletRes = await fetch("http://localhost:8000/api/wallet", {
+            const walletRes = await fetch(API.WALLET, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
