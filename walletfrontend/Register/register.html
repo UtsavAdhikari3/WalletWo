@@ -416,7 +416,9 @@
             const data = await res.json();
 
             if (!res.ok) {
-              this.setState({ error: data.detail || "Registration failed." });
+              this.setState({
+                error: data.username || data.email || "Registration failed.",
+              });
               return;
             }
             this.setState({
