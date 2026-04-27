@@ -1,5 +1,5 @@
-const BASE_URL = "http://localhost:8000";
-const ECOM_URL = "http://localhost:8001";
+const BASE_URL = "http://168.138.112.201:8000";
+const ECOM_URL = "http://168.138.112.201:8001";
 
 const API = {
   LOGIN: BASE_URL + "/api/users/login/",
