@@ -1,5 +1,5 @@
 const BASE_URL = "https://apiwallet.adhikariutsav.com.np";
-const ECOM_URL = "http://168.138.112.201:8001";
+const ECOM_URL = "https://apiecom.adhikariutsav.com.np";
 
 const API = {
   LOGIN: BASE_URL + "/api/users/login/",
